@@ -19,6 +19,15 @@ const CLOUDS := [
 
 var _time: float = 0.0
 
+## The UI safe-area inset (set by Main on phones/tablets). The sky itself
+## stays edge-to-edge, but the sun - the one "object" in a corner - moves
+## in with it (by half: its disc clears the margin, its rays may reach into
+## it), balancing the top-bar buttons in the opposite corner.
+var safe_inset := Vector2.ZERO:
+	set(value):
+		safe_inset = value
+		queue_redraw()
+
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -36,7 +45,8 @@ func _draw() -> void:
 		PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h), Vector2(0, h)]),
 		PackedColorArray([UiTheme.SKY_TOP, UiTheme.SKY_TOP, UiTheme.SKY_BOTTOM, UiTheme.SKY_BOTTOM]))
 
-	_draw_sun(Vector2(w * 0.07, h * 0.1), h * 0.065)
+	# Half the inset: the sun's disc clears the margin, its rays may poke into it.
+	_draw_sun(Vector2(w * 0.07, h * 0.1) + safe_inset * 0.5, h * 0.065)
 
 	for c in CLOUDS:
 		var travel: float = fposmod(c[0] * (w + 300.0) + _time * c[3], w + 300.0) - 150.0

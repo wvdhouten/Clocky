@@ -25,6 +25,11 @@ func _on_setup() -> void:
 	check_button.visible = true
 
 
+## Spoken as "Set the clock to half past three", not "... 3:30".
+func _prompt_speech() -> String:
+	return tr("SET_CLOCK_PROMPT").format({"time": LocaleManager.phrase_for_time(question.target)})
+
+
 func _refresh_prompt() -> void:
 	prompt_label.text = tr("SET_CLOCK_PROMPT").format({"time": question.target.to_digital_string()})
 	check_button.text = tr("CHECK")

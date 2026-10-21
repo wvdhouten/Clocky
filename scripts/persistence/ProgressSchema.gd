@@ -23,8 +23,6 @@ func _ensure_shape() -> void:
 		data["locale"] = "en"
 	if not data.has("exercise_progress"):
 		data["exercise_progress"] = {}
-	if not data.has("overall_stars"):
-		data["overall_stars"] = 0
 	if not data.has("session_history"):
 		data["session_history"] = []
 	if not data.has("settings"):
@@ -67,7 +65,6 @@ func record_attempt(exercise_type_key: String, tier_number: int, correct: bool, 
 		stats["streak"] = int(stats.get("streak", 0)) + 1
 		if stats["streak"] >= mastery_threshold:
 			stats["mastered"] = true
-			data["overall_stars"] = int(data.get("overall_stars", 0)) + 1
 	else:
 		stats["streak"] = 0
 
@@ -95,5 +92,13 @@ func record_session(exercise_name: String, tier_name: String, correct: int, atte
 	data["session_history"] = history
 
 
+## One star per correct answer, ever - the same stars the summary screen
+## pops in - so the total always includes the session just played.
+## Derived from the per-tier counts rather than stored, so it can't drift
+## (older saves' "overall_stars" key is simply ignored).
 func get_overall_stars() -> int:
-	return int(data.get("overall_stars", 0))
+	var total: int = 0
+	for ex_dict in data["exercise_progress"].values():
+		for stats in ex_dict.values():
+			total += int(stats.get("correct", 0))
+	return total

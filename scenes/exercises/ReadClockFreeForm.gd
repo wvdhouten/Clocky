@@ -84,7 +84,7 @@ func _on_submit_pressed() -> void:
 		return
 	var parsed = _parse_time(answer_edit.text)
 	if parsed == null:
-		feedback_label.text = tr("FORMAT_HINT")
+		_set_feedback(tr("FORMAT_HINT"))
 		return
 	_answered_this_question = true
 	answer_edit.editable = false
@@ -92,7 +92,10 @@ func _on_submit_pressed() -> void:
 	var correct: bool = parsed.equals(question.target)
 	_report_answer(correct)
 	if not correct:
-		feedback_label.text = tr("FEEDBACK_WRONG_WAS").format({"time": question.target.to_digital_string()})
+		# Screen shows "3:15"; the voice says it the natural way ("quarter past three").
+		var wrong: String = tr("FEEDBACK_WRONG_WAS")
+		_set_feedback(wrong.format({"time": question.target.to_digital_string()}),
+			wrong.format({"time": LocaleManager.phrase_for_time(question.target)}))
 		_wobble(answer_edit)
 
 

@@ -10,6 +10,7 @@ signal back_requested()
 const TimeValue = preload("res://scripts/clock_logic/TimeValue.gd")
 const ExerciseDefinitionScript = preload("res://scripts/data/ExerciseDefinition.gd")
 const AnalogClockScene = preload("res://scenes/clock/AnalogClock.tscn")
+const SpeakButtonScript = preload("res://scenes/ui_components/SpeakButton.gd")
 const ExReadMc = preload("res://resources/exercises/ex_read_mc.tres")
 const ExReadFree = preload("res://resources/exercises/ex_read_free.tres")
 const ExSetClock = preload("res://resources/exercises/ex_set_clock.tres")
@@ -34,6 +35,18 @@ var _chosen_exercise_def = null
 
 func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
+	# 🗣️ beside the title banner reads the current title aloud.
+	var title_speaker: Button = SpeakButtonScript.new()
+	title_speaker.name = "TitleSpeaker"
+	title_speaker.source = func(): return title_label.text
+	add_child(title_speaker)
+	title_speaker.anchor_left = 0.5
+	title_speaker.anchor_right = 0.5
+	var mid: float = (title_label.offset_top + title_label.offset_bottom) / 2.0
+	title_speaker.offset_right = title_label.offset_left - 12.0
+	title_speaker.offset_left = title_speaker.offset_right - 52.0
+	title_speaker.offset_top = mid - 26.0
+	title_speaker.offset_bottom = mid + 26.0
 	_show_exercise_choices()
 	LocaleManager.locale_changed.connect(_on_locale_changed)
 
@@ -65,7 +78,7 @@ func _show_exercise_choices() -> void:
 		var mastered: int = _mastered_count(ex)
 		var badge: String = look[2]
 		var footer: String = "🏆 %d/%d" % [mastered, ex.supports_tiers.size()] if mastered > 0 else ""
-		var card := _card(Vector2(260, 290), TimeValue.new(look[0], look[1]), 160, tr(ex.name_key), badge, footer)
+		var card := _card(Vector2(260, 290), TimeValue.new(look[0], look[1]), 150, tr(ex.name_key), badge, footer)
 		card.pressed.connect(_on_exercise_picked.bind(ex))
 		exercise_row.add_child(card)
 		_pop_in(card, exercise_row.get_child_count())
@@ -83,7 +96,7 @@ func _on_exercise_picked(ex) -> void:
 	for tier in ex.supports_tiers:
 		var example: Array = TIER_EXAMPLE.get(tier.tier_number, [3, 0])
 		var mastered: bool = ProgressStore.is_tier_mastered(type_key, tier.tier_number)
-		var card := _card(Vector2(196, 250), TimeValue.new(example[0], example[1]), 130, tr(tier.name_key), "🏆" if mastered else "", "")
+		var card := _card(Vector2(196, 250), TimeValue.new(example[0], example[1]), 120, tr(tier.name_key), "🏆" if mastered else "", "")
 		card.pressed.connect(_on_tier_picked.bind(tier))
 		tier_row.add_child(card)
 		_pop_in(card, tier_row.get_child_count())
@@ -142,6 +155,17 @@ func _card(card_size: Vector2, example: TimeValue, clock_px: int, label_text: St
 		foot.add_theme_font_size_override("font_size", 18)
 		foot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		box.add_child(foot)
+
+	# 🗣️ in the top-left corner reads the card's name without selecting it
+	# (it's its own button, so the tap doesn't reach the card).
+	var speaker: Button = SpeakButtonScript.new()
+	speaker.source = func(): return label_text
+	btn.add_child(speaker)
+	speaker.name = "CardSpeaker"
+	speaker.custom_minimum_size = Vector2(40, 40)
+	speaker.add_theme_font_size_override("font_size", 19)
+	speaker.position = Vector2(6, 6)
+	speaker.size = Vector2(40, 40)
 
 	if not badge.is_empty():
 		var b := Label.new()

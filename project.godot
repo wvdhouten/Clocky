@@ -25,7 +25,12 @@ ProgressStore="*res://autoloads/ProgressStore.gd"
 SoundFx="*res://autoloads/SoundFx.gd"
 KioskWindow="*res://autoloads/KioskWindow.gd"
 LocaleManager="*res://autoloads/LocaleManager.gd"
+Speech="*res://autoloads/Speech.gd"
 ExerciseDirector="*res://autoloads/ExerciseDirector.gd"
+
+[audio]
+
+general/text_to_speech=true
 
 [display]
 

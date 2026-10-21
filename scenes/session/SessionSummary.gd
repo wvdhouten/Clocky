@@ -34,7 +34,7 @@ func _apply_text() -> void:
 	score_label.text = "%d / %d" % [int(s.get("correct", 0)), int(s.get("attempts", 0))]
 	mastered_label.visible = bool(s.get("tier_mastered", false))
 	mastered_label.text = tr("TIER_MASTERED")
-	total_label.text = "🏆 " + tr("TOTAL_STARS").format({"count": int(s.get("overall_stars", 0))})
+	total_label.text = "⭐ " + tr("TOTAL_STARS").format({"count": int(s.get("overall_stars", 0))})
 
 
 ## One star per question: earned ones pop in one by one with rising

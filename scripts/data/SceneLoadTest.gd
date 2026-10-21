@@ -35,6 +35,11 @@ func _init() -> void:
 	_check_free_form_24h_parsing()
 	await _check_keypad_input()
 	await _check_back_navigation()
+	await _check_safe_area()
+	_check_speech_text()
+	# From here on, show the 🗣️ buttons so layout checks include them.
+	root.get_node("Speech").force_available = true
+	await _check_card_speakers()
 	await _check_clock_number_setting()
 	# Logical viewport sizes under the "expand" stretch aspect: 1280x800 is
 	# the design size (16:10), 1422x800 a 16:9 monitor, 1280x960 a 4:3
@@ -289,10 +294,10 @@ func _check_back_navigation() -> void:
 	var tier = load("res://resources/tiers/tier_1_ohclock.tres")
 	main._on_exercise_chosen(ex, tier)
 	await process_frame
-	main.get_node("LocaleSwitcher")._toggle_dialog()
+	main.get_node("SafeArea/LocaleSwitcher")._toggle_dialog()
 	main.go_back()
 	await process_frame
-	_check(main._screen_kind == main.Screen.EXERCISE and not main.get_node("LocaleSwitcher").dialog_panel.visible,
+	_check(main._screen_kind == main.Screen.EXERCISE and not main.get_node("SafeArea/LocaleSwitcher").dialog_panel.visible,
 		"back closes an open dialog first")
 	main.go_back()
 	await process_frame
@@ -307,3 +312,78 @@ func _check_back_navigation() -> void:
 	_check(main._screen_kind == main.Screen.MENU, "back from activity picker -> menu")
 	root.remove_child(main)
 	main.queue_free()
+
+
+## Phones with rounded corners: with safe margins applied, every button and
+## overlay (top bar, owl, an exercise's Exit button) must sit inside the
+## inset, while the sky background still fills the whole screen.
+func _check_safe_area() -> void:
+	var host := Control.new()
+	host.size = Vector2(1778, 800)  # 20:9 phone, e.g. the Xiaomi 17 Ultra
+	root.add_child(host)
+	var main = load("res://scenes/main/Main.tscn").instantiate()
+	host.add_child(main)
+	main.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	await process_frame
+	main._on_exercise_chosen(load("res://resources/exercises/ex_read_mc.tres"), load("res://resources/tiers/tier_1_ohclock.tres"))
+	main.set_safe_margins(56.0, 10.0)
+	for i in 3:
+		await process_frame
+
+	var inset := Rect2(56, 10, 1778 - 112, 800 - 20)
+	var checked := {
+		"Owl": main.get_node("SafeArea/Owl"),
+		"MuteButton": main.get_node("SafeArea/MuteButton"),
+		"NumberModeButton": main.get_node("SafeArea/NumberModeSwitcher/ModeButton"),
+		"FlagButton": main.get_node("SafeArea/LocaleSwitcher/FlagButton"),
+		"Exercise ExitButton": main._current_screen.get_node("ExitButton"),
+		"Exercise PromptLabel": main._current_screen.get_node("PromptLabel"),
+	}
+	for label in checked:
+		var r: Rect2 = checked[label].get_global_rect()
+		_check(inset.encloses(r), "safe area keeps %s inside the inset (%s)" % [label, r])
+	var sky: Rect2 = main.get_node("SkyBackground").get_global_rect()
+	_check(sky.size == Vector2(1778, 800), "sky background still fills the whole screen (%s)" % sky)
+	_check(main.get_node("SkyBackground").safe_inset == Vector2(56, 10), "sun moves in by the same safe-area margin")
+	root.remove_child(host)
+	host.queue_free()
+
+
+func _check_speech_text() -> void:
+	var Speech = root.get_node("Speech")
+	for c in [["Correct! ⭐", "Correct!"], ["Tier mastered! 🏆", "Tier mastered!"],
+			["Quarter Past/To", "Quarter Past, To"], ["Ieșire", "Ieșire"], ["half vier", "half vier"]]:
+		_check(Speech.clean(c[0]) == c[1], "speech text '%s' -> '%s' (got '%s')" % [c[0], c[1], Speech.clean(c[0])])
+
+
+## The 🗣️ corner button on each picker card must stay inside the card and
+## off the mini clock's circle.
+func _check_card_speakers() -> void:
+	var host := Control.new()
+	host.size = Vector2(1280, 800)
+	root.add_child(host)
+	var inst = load("res://scenes/session/TierSelect.tscn").instantiate()
+	host.add_child(inst)
+	inst.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for step in ["activity", "difficulty"]:
+		if step == "difficulty":
+			inst._on_exercise_picked(load("res://resources/exercises/ex_read_mc.tres"))
+		for i in 4:
+			await process_frame
+		var row: Control = inst.tier_row if step == "difficulty" else inst.exercise_row
+		var worst := INF
+		var ok := true
+		for card in row.get_children():
+			var speaker: Control = card.get_node("CardSpeaker")
+			var clock: Control = card.find_children("*", "Control", true, false).filter(func(n): return n.has_method("set_time"))[0]
+			var s_rect: Rect2 = speaker.get_global_rect()
+			var c_rect: Rect2 = clock.get_global_rect()
+			var radius: float = min(c_rect.size.x, c_rect.size.y) / 2.0
+			var nearest := Vector2(clamp(c_rect.get_center().x, s_rect.position.x, s_rect.end.x),
+				clamp(c_rect.get_center().y, s_rect.position.y, s_rect.end.y))
+			var gap: float = nearest.distance_to(c_rect.get_center()) - radius
+			worst = min(worst, gap)
+			ok = ok and speaker.visible and card.get_global_rect().encloses(s_rect) and gap >= 3.0
+		_check(ok, "%s cards: 🗣️ visible, inside card, clear of the clock (closest gap %.0f px)" % [step, worst])
+	root.remove_child(host)
+	host.queue_free()

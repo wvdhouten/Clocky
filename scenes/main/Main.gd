@@ -4,11 +4,19 @@ const MainMenuScene = preload("res://scenes/main/MainMenu.tscn")
 const TierSelectScene = preload("res://scenes/session/TierSelect.tscn")
 const SessionSummaryScene = preload("res://scenes/session/SessionSummary.tscn")
 
-@onready var screen_host: Control = $ScreenHost
-@onready var owl: Control = $Owl
-@onready var celebration: Control = $Celebration
+@onready var safe_area: Control = $SafeArea
+@onready var screen_host: Control = $SafeArea/ScreenHost
+@onready var owl: Control = $SafeArea/Owl
+@onready var celebration: Control = $SafeArea/Celebration
 
 enum Screen { MENU, PICKER, EXERCISE, SUMMARY }
+
+## Minimum inset on phones/tablets (viewport units). Rounded screen corners
+## aren't always reported in the OS safe area, so we always keep at least
+## this much room; the sides get more because that's where corners bite in
+## landscape.
+const MOBILE_MIN_SIDE := 56.0
+const MOBILE_MIN_TOP_BOTTOM := 10.0
 
 var _current_screen: Node = null
 var _screen_kind: Screen = Screen.MENU
@@ -19,7 +27,32 @@ func _ready() -> void:
 	# The hold-to-exit button is for the desktop kiosk; on phones/tablets
 	# Android's own app switching (and back at the main menu) covers it.
 	if OS.has_feature("mobile"):
-		$ParentExitButton.visible = false
+		$SafeArea/ParentExitButton.visible = false
+		_apply_device_safe_area()
+		get_viewport().size_changed.connect(_apply_device_safe_area)
+
+
+## Keeps all UI (but not the sky background) clear of rounded corners and
+## camera cutouts. Uses the larger of left/right (and top/bottom) for both
+## sides, so the layout stays correct when the phone is flipped 180 deg.
+func _apply_device_safe_area() -> void:
+	var window := Vector2(DisplayServer.window_get_size())
+	if window.x <= 0.0 or window.y <= 0.0:
+		return
+	var to_viewport: Vector2 = get_viewport_rect().size / window
+	var screen := Vector2(DisplayServer.screen_get_size())
+	var safe := Rect2(DisplayServer.get_display_safe_area())
+	var side: float = max(safe.position.x, screen.x - safe.end.x) * to_viewport.x
+	var top_bottom: float = max(safe.position.y, screen.y - safe.end.y) * to_viewport.y
+	set_safe_margins(max(side, MOBILE_MIN_SIDE), max(top_bottom, MOBILE_MIN_TOP_BOTTOM))
+
+
+func set_safe_margins(side: float, top_bottom: float) -> void:
+	safe_area.offset_left = side
+	safe_area.offset_right = -side
+	safe_area.offset_top = top_bottom
+	safe_area.offset_bottom = -top_bottom
+	$SkyBackground.safe_inset = Vector2(side, top_bottom)
 
 
 ## Android back gesture/button (quit_on_go_back is off): step back through

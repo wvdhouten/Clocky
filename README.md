@@ -55,6 +55,16 @@ godot --headless --path . --script res://scripts/tools/BuildIcon.gd -- [preview_
 
 The `.ico` serves as the runtime window/taskbar icon (`windows_native_icon`) and is stamped into the exe at export. Stamping needs [rcedit](https://github.com/electron/rcedit), configured per machine in Godot's editor settings: `export/windows/rcedit` in `%APPDATA%\Godot\editor_settings-4.7.tres`. On this PC it's `%LOCALAPPDATA%\Programs\rcedit\rcedit-x64.exe`. Without rcedit, the export still works, but the exe keeps Godot's default icon.
 
+## Read aloud
+
+Tap a 🗣️ button to hear a screen's instruction, the feedback after answering, or an activity/difficulty card's name read aloud. Nothing is spoken automatically.
+
+It uses the device's own voices: Windows' built-in voices on PC, and Google's text-to-speech on Android. If a language has no voice installed, its 🗣️ buttons are hidden.
+- **Windows:** add voices via Settings → Time & Language → Speech.
+- **Android:** Settings → Text-to-speech → install voice data.
+
+The 🔊/🔇 mute button silences speech as well.
+
 ## Kiosk mode
 
 The app starts fullscreen and stretches to fill the screen. Children can't close it by accident. To exit, **press and hold the round ⏻ button in the top-left corner for 3 seconds** until the ring fills. Alt+F4 also works.

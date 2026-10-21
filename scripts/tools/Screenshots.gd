@@ -81,10 +81,10 @@ func _run() -> void:
 	main._show_session_summary()
 	await _shot("10_summary", 2.2)
 
-	main.get_node("LocaleSwitcher")._toggle_dialog()
+	main.get_node("SafeArea/LocaleSwitcher")._toggle_dialog()
 	await _shot("11_locale_dialog")
 
-	var exit_btn = main.get_node("ParentExitButton")
+	var exit_btn = main.get_node("SafeArea/ParentExitButton")
 	exit_btn._holding = true
 	exit_btn._held = 1.6
 	await _shot("12_parent_exit_holding")
@@ -93,7 +93,7 @@ func _run() -> void:
 
 	# 16:9 monitor: the "expand" aspect widens the logical viewport.
 	DisplayServer.window_set_size(Vector2i(1422, 800))
-	main.get_node("LocaleSwitcher").close_dialog()
+	main.get_node("SafeArea/LocaleSwitcher").close_dialog()
 	main.show_tier_select()
 	main._current_screen._on_exercise_picked(ex_mc)
 	await _shot("13_wide_difficulty", 0.6)

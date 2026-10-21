@@ -4,7 +4,13 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
 
 ## Product decisions (don't undo without asking)
 
-- **No speech.** Text-to-speech and speech-to-text were built and then removed on purpose ("not the right interface for kids"). Don't bring back voice prompts, mic input or speech plugins. Simple sound effects are fine.
+- **Speech: tap-to-hear text-to-speech only, never speech-to-text.**
+  - Speech was first removed as "not the right interface for kids", then text-to-speech came back in a narrower form: it helps non-readers understand labels. Getting children to speak answers was judged not worth it.
+  - Nothing is spoken automatically. Small 🗣️ `SpeakButton`s sit beside the screen instructions and the feedback, and in each picker card's top-left corner, where they read the name without selecting the card. The main menu, summary and buttons like Next/Back have none (the user chose prompts and card names only).
+  - Uses Godot's built-in TTS via the `Speech` autoload (`DisplayServer.tts_*`, with `audio/general/text_to_speech=true`). That means Windows OneCore voices on PC (English and Dutch are installed here, Romanian isn't) and Google TTS on Android. No plugins or helper programs.
+  - If the current language has no voice, the 🗣️ buttons hide. The top-bar mute silences speech too.
+  - Speech text goes through `Speech.clean()`, which drops emoji and reads "/" as ", ". Set the Clock and wrong typed answers speak the time naturally via `PhraseBuilder` ("half past three"), while the screen shows digits.
+  - The "read the clock" prompts must never speak the target time, because that would give away the answer.
 - **Exercises:** read the clock (multiple choice), read the clock (type the time; 12h and 24h both accepted), and set the clock (drag the hands). Each has 5 tiers: o'clock → half → quarter → 5-minute → exact minute.
 - **Every wrong answer teaches.** Multiple choice reveals the right answer in green. Set the Clock animates the hands to the target. Typed answers show "Almost! It was 3:15." The feedback is never punishing.
 - **Clock numbers setting:** none, hours, or hours + minutes. Numbers sit in rings *outside* the rim, so the hands never cover them. Hour hand and hour numbers are navy; minute hand and minute numbers are blue.
@@ -18,7 +24,9 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
   - Only query `DisplayServer.virtual_keyboard_get_height()` when `has_feature(FEATURE_VIRTUAL_KEYBOARD)`; otherwise Windows logs a warning every frame.
   - Android requires `import_etc2_astc=true`.
   - The slim-engine idea (a custom Godot build to shrink the 110 MB exe) was dropped as not worth the maintenance.
-- `PhraseBuilder` (time in words per locale, `scripts/speech/`) is currently unused but **kept on purpose** for possible reuse. Its Dutch idioms ("half vier" = 3:30, anchored to the *next* hour) are the riskiest correctness area.
+- **Total stars** = one per correct answer ever (the same stars the summary pops in), computed by `ProgressSchema.get_overall_stars()` from per-tier `correct` counts; there's no stored counter. 🏆 is reserved for mastered levels.
+- **Safe area (mobile):** everything except the sky lives in `Main/SafeArea`, inset on phones and tablets by the OS safe area. The minimum is 56 px at the sides and 10 at top and bottom, because rounded corners aren't always reported. The same margin is used on both sides so a 180° flip still fits. The sky's sun moves in by *half* the inset: its disc clears the margin, its rays may reach into it. Desktop has zero inset.
+- `PhraseBuilder` (time in words per locale, `scripts/speech/`) produces the spoken time phrases. Its Dutch idioms ("half vier" = 3:30, anchored to the *next* hour) are the riskiest correctness area.
 - The user playtests every step and gives concrete UX feedback. A UI change isn't done until it has been verified visually (see Screenshots).
 
 ## Layout
@@ -30,15 +38,16 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
   - `SoundFx`: synthesized sounds; every button automatically gets a tap sound.
   - `KioskWindow`: keeps fullscreen fitted to the current monitor and remembers it.
   - `LocaleManager`
+  - `Speech`: tap-to-hear text-to-speech.
   - `ExerciseDirector`: sessions and question generation.
 - `scenes/main/`:
-  - `Main.tscn`: the persistent shell. It swaps screens inside `ScreenHost`, and hosts the overlays that appear on every screen: sky background, owl, top bar (mute / 🔢 / flag), parent-exit button, confetti layer.
+  - `Main.tscn`: the persistent shell. The sky background is full-screen. Everything else sits inside `SafeArea`: `ScreenHost`, where screens are swapped, plus the overlays that appear on every screen (owl, top bar with mute / 🔢 / flag, parent-exit button, confetti layer).
   - `MainMenu`
   - `ClockDebug`: dev-only and excluded from builds.
 - `scenes/clock/AnalogClock`: the reusable clock widget, in STATIC or INTERACTIVE mode. It communicates only through `set_time()`, `get_current_time()`, `animate_to()` and its signals.
 - `scenes/exercises/`: all exercises extend `ExerciseBase.gd` by path. Each scene must contain the nodes `PromptLabel`, `FeedbackLabel`, `NextButton` and `ExitButton`.
 - `scenes/session/`: `TierSelect` (picture cards with mastery badges) and `SessionSummary`.
-- `scenes/ui_components/`: owl, sky, celebration, switchers, and the parent-exit button.
+- `scenes/ui_components/`: owl, sky, celebration, switchers, the parent-exit button and `SpeakButton`.
 - `scripts/`:
   - `clock_logic` (`ClockMath`, `TimeValue`)
   - `data` (tier/exercise Resources, `QuestionGenerator`)
@@ -58,7 +67,9 @@ The Godot executable (winget install, not on PATH):
 - **Tests:** `godot --headless --script res://<path>`. Each prints `ALL PASS` or `N FAILURE(S)`.
   - `scripts/clock_logic/ClockMathTest.gd`
   - `scripts/data/ExerciseFlowTest.gd`
-  - `scripts/data/SceneLoadTest.gd`: checks scene loading, that the hands are drawable, and the layout at 1280×800 *and* 1422×800 (16:9). The layout check includes overlap against the owl, the top bar and the exit button, plus contrast.
+  - `scripts/data/SceneLoadTest.gd`: checks scene loading, that the hands are drawable, and the layout at 1280×800, 1422×800 (16:9), 1280×960 (4:3 tablet) and 1778×800 (20:9 phone). The layout check includes overlap against the owl, the top bar and the exit button, plus contrast.
+    - It also covers back navigation, keypad input, the keyboard lift, the safe area, speech text cleanup, and that card 🗣️ buttons stay clear of the clocks.
+    - `Speech.force_available = true` makes the 🗣️ buttons visible in headless runs.
   - `scripts/data/ProgressPersistenceTest.gd`
   - `scripts/speech/PhraseBuilderTest.gd`
 - **Screenshots** (needs a window, so no `--headless`; it saves only Godot's own viewport, never the desktop):
@@ -87,3 +98,7 @@ The Godot executable (winget install, not on PATH):
 - **Fonts must cover Romanian ă ș ț.** Baloo 2 does; Fredoka doesn't. Check glyph coverage before switching fonts.
 - **Text-format `.tscn`/`.tres` files are edited by hand.** Keep the blank lines between `[node]` sections, and put `layout_mode`/anchors on Control nodes.
 - **Button children need `mouse_filter = IGNORE`** so the whole card stays clickable (e.g. the mini clocks on the picker cards).
+- **Phone checks over adb** (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`, the user's Xiaomi 17 Ultra):
+  - `adb install -r build/Clocky.apk` needs "Install via USB" on in HyperOS developer options.
+  - Simulated taps (`input tap`) are blocked unless "USB debugging (Security settings)" is also on, so ask the user to navigate.
+  - Only take `screencap` after confirming Clocky is the `topResumedActivity`, so nothing else on their phone gets captured.

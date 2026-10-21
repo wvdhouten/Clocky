@@ -41,7 +41,7 @@ func _init() -> void:
 	_check_eq_int("correct after 5 correct", stats["correct"], 5)
 	_check_eq_int("streak after 5 correct", stats["streak"], 5)
 	_check_true("tier mastered after streak", bool(stats["mastered"]))
-	_check_eq_int("overall stars after mastery", store.get_overall_stars(), 1)
+	_check_eq_int("total stars = correct answers so far", store.get_overall_stars(), 5)
 
 	# Simulate an app restart: drop the in-memory schema, reload from disk.
 	store.schema = null
@@ -56,6 +56,7 @@ func _init() -> void:
 	var after_miss: Dictionary = store.get_tier_stats("READ_MC", 1)
 	_check_eq_int("streak resets on wrong answer", after_miss["streak"], 0)
 	_check_eq_int("attempts accumulate across sessions", after_miss["attempts"], 6)
+	_check_eq_int("wrong answer adds no star", store.get_overall_stars(), 5)
 
 	if failures == 0:
 		print("ALL PASS")
