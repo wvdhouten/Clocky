@@ -1,0 +1,31 @@
+keys,en,nl,ro
+APP_TITLE,Clocky,Clocky,Clocky
+START,Start,Start,Start
+PICK_ACTIVITY,Pick an activity,Kies een activiteit,Alege o activitate
+PICK_DIFFICULTY,Pick a difficulty,Kies een moeilijkheidsgraad,Alege o dificultate
+EX_READ_MC,Read the Clock (Multiple Choice),Lees de klok (meerkeuze),Citește ceasul (grilă)
+EX_READ_FREE,Read the Clock (Type the Time),Lees de klok (typ de tijd),Citește ceasul (scrie ora)
+EX_SET_CLOCK,Set the Clock,Zet de klok,Potrivește ceasul
+TIER_1,O'Clock,Hele uren,Ora fixă
+TIER_2,Half Past,Half uur,Jumătate
+TIER_3,Quarter Past/To,Kwartier,Sfert
+TIER_4,Five Minutes,Vijf minuten,Cinci minute
+TIER_5,Exact Minute,Exacte minuut,Minut exact
+READ_MC_PROMPT,What time is it?,Hoe laat is het?,Cât e ceasul?
+READ_FREE_PROMPT,What time is it? Type it like 3:15,Hoe laat is het? Typ het zoals 3:15,Cât e ceasul? Scrie ca 3:15
+FORMAT_HINT,Try a format like 3:15,Probeer bijvoorbeeld 3:15,Încearcă un format ca 3:15
+SET_CLOCK_PROMPT,Set the clock to {time},Zet de klok op {time},Potrivește ceasul la {time}
+SUBMIT,Submit,Verzenden,Trimite
+CHECK,Check,Controleer,Verifică
+NEXT,Next,Volgende,Următor
+EXIT,Exit,Stoppen,Ieșire
+CONTINUE,Continue,Doorgaan,Continuă
+FEEDBACK_CORRECT,Correct! ⭐,Goed zo! ⭐,Corect! ⭐
+FEEDBACK_WRONG,Almost! Here is the right time.,Bijna! Zo is het goed.,Aproape! Uite ora corectă.
+FEEDBACK_WRONG_WAS,Almost! It was {time}.,Bijna! Het was {time}.,Aproape! Era {time}.
+TIER_MASTERED,Tier mastered! 🏆,Niveau gehaald! 🏆,Nivel stăpânit! 🏆
+TOTAL_STARS,Total stars: {count},Totaal aantal sterren: {count},Total stele: {count}
+NUMBERS_NONE,No numbers,Geen cijfers,Fără cifre
+NUMBERS_HOURS,Hours,Uren,Ore
+NUMBERS_ALL,Hours and minutes,Uren en minuten,Ore și minute
+BACK,Back,Terug,Înapoi

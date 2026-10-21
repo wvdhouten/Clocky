@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ExerciseDefinition" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ExerciseDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/exercises/ReadClockMultipleChoice.tscn" id="2"]
+[ext_resource type="Resource" path="res://resources/tiers/tier_1_ohclock.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/tiers/tier_2_half.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/tiers/tier_3_quarter.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/tiers/tier_4_five_min.tres" id="6"]
+[ext_resource type="Resource" path="res://resources/tiers/tier_5_exact_min.tres" id="7"]
+
+[resource]
+script = ExtResource("1")
+exercise_type = 0
+display_name = "Read the Clock (Multiple Choice)"
+name_key = "EX_READ_MC"
+scene = ExtResource("2")
+supports_tiers = Array[Resource]([ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7")])
+uses_speech = false

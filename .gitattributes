@@ -1,0 +1,6 @@
+# Normalize line endings (Godot's recommended setting)
+* text=auto eol=lf
+
+*.ttf binary
+*.png binary
+*.translation binary

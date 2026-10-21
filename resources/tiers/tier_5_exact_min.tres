@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TierDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TierDefinition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tier_number = 5
+display_name = "Exact Minute"
+name_key = "TIER_5"
+allowed_minutes = Array[int]([])
+mastery_threshold = 6

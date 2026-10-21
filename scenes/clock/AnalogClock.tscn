@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/clock/AnalogClock.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/SmoothPolygon2D.gd" id="2"]
+
+[node name="AnalogClock" type="Control"]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1")
+
+[node name="HourHand" type="Node2D" parent="."]
+
+[node name="HourHandShape" type="Polygon2D" parent="HourHand"]
+script = ExtResource("2")
+
+[node name="MinuteHand" type="Node2D" parent="."]
+
+[node name="MinuteHandShape" type="Polygon2D" parent="MinuteHand"]
+script = ExtResource("2")
+
+[node name="CenterPin" type="Polygon2D" parent="."]
+script = ExtResource("2")
+
+[node name="DebugLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -60.0
+offset_top = -36.0
+offset_right = 60.0
+offset_bottom = -4.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "12:00"

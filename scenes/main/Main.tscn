@@ -1,0 +1,57 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scenes/main/Main.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/LocaleSwitcher.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/NumberModeSwitcher.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/SkyBackground.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/Owl.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/Celebration.tscn" id="6"]
+[ext_resource type="Script" path="res://scenes/ui_components/MuteButton.gd" id="7"]
+[ext_resource type="Script" path="res://scenes/ui_components/ParentExitButton.gd" id="8"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="SkyBackground" parent="." instance=ExtResource("4")]
+layout_mode = 1
+
+[node name="ScreenHost" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Owl" parent="." instance=ExtResource("5")]
+layout_mode = 1
+
+[node name="MuteButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -228.0
+offset_top = 12.0
+offset_right = -164.0
+offset_bottom = 62.0
+script = ExtResource("7")
+
+[node name="NumberModeSwitcher" parent="." instance=ExtResource("3")]
+layout_mode = 1
+
+[node name="LocaleSwitcher" parent="." instance=ExtResource("2")]
+layout_mode = 1
+
+[node name="ParentExitButton" type="Control" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 60.0
+offset_bottom = 60.0
+script = ExtResource("8")
+
+[node name="Celebration" parent="." instance=ExtResource("6")]
+layout_mode = 1

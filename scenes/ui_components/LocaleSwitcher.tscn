@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui_components/LocaleSwitcher.gd" id="1"]
+
+[node name="LocaleSwitcher" type="Control"]
+mouse_filter = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="FlagButton" type="Button" parent="."]
+theme_type_variation = &"TopBarButton"
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -76.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 62.0
+theme_override_font_sizes/font_size = 26
+text = "🇬🇧"
+
+[node name="DialogPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -242.0
+offset_top = 70.0
+offset_right = -12.0
+offset_bottom = 254.0
+
+[node name="OptionList" type="VBoxContainer" parent="DialogPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+theme_override_constants/separation = 8

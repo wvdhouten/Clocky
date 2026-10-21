@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TierDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TierDefinition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tier_number = 4
+display_name = "Five Minutes"
+name_key = "TIER_4"
+allowed_minutes = Array[int]([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
+mastery_threshold = 6

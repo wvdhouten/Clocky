@@ -1,0 +1,12 @@
+# Godot 4 local cache/imports - regenerated automatically
+.godot/
+
+# Exported builds
+/build/
+/export/
+*.pck
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.tmp

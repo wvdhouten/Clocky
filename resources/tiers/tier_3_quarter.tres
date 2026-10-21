@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TierDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/TierDefinition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+tier_number = 3
+display_name = "Quarter Past/To"
+name_key = "TIER_3"
+allowed_minutes = Array[int]([0, 15, 30, 45])
+mastery_threshold = 5
