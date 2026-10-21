@@ -14,6 +14,7 @@ config/name="Clocky"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
+config/windows_native_icon="res://assets/icon/clocky.ico"
 
 [autoload]
 
@@ -21,6 +22,7 @@ UiTheme="*res://autoloads/UiTheme.gd"
 GameState="*res://autoloads/GameState.gd"
 ProgressStore="*res://autoloads/ProgressStore.gd"
 SoundFx="*res://autoloads/SoundFx.gd"
+KioskWindow="*res://autoloads/KioskWindow.gd"
 LocaleManager="*res://autoloads/LocaleManager.gd"
 ExerciseDirector="*res://autoloads/ExerciseDirector.gd"
 

@@ -10,6 +10,7 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
 - **Clock numbers setting:** none, hours, or hours + minutes. Numbers sit in rings *outside* the rim, so the hands never cover them. Hour hand and hour numbers are navy; minute hand and minute numbers are blue.
 - **Owl mascot**, confetti, and sound effects synthesized in code, with a mute toggle.
 - **Kiosk:** starts fullscreen with stretch aspect `expand`. Exit by holding the top-left ⏻ for 3 seconds; Alt+F4 also works.
+- **Multi-monitor (`KioskWindow` autoload):** Windows keeps a fullscreen window's old size when it's moved to another monitor. That caused a wrong aspect and a cut-off owl on the user's 2560×1600 + 2880×1620 setup. `KioskWindow` polls for a monitor change, re-applies fullscreen there, and saves the `kiosk_screen` setting so the next launch opens on the same monitor. `--screen N` on the command line overrides it. It does nothing in headless runs and `--script` runs. Test it with `scripts/tools/KioskWindowTest.gd`, which needs a window and 2 monitors and briefly goes fullscreen on each.
 - `PhraseBuilder` (time in words per locale, `scripts/speech/`) is currently unused but **kept on purpose** for possible reuse. Its Dutch idioms ("half vier" = 3:30, anchored to the *next* hour) are the riskiest correctness area.
 - The user playtests every step and gives concrete UX feedback. A UI change isn't done until it has been verified visually (see Screenshots).
 
@@ -20,6 +21,7 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
   - `GameState`
   - `ProgressStore`: `user://progress.json` and settings.
   - `SoundFx`: synthesized sounds; every button automatically gets a tap sound.
+  - `KioskWindow`: keeps fullscreen fitted to the current monitor and remembers it.
   - `LocaleManager`
   - `ExerciseDirector`: sessions and question generation.
 - `scenes/main/`:
@@ -57,6 +59,10 @@ The Godot executable (winget install, not on PATH):
   It uses a fixed RNG seed and writes zoom crops (`*z_*.png`) for checking edge quality. Look at them with the Read tool.
 - **Build:** `godot --headless --path . --export-release "Windows Desktop" build/Clocky.exe`
   This needs the 4.7.2 Windows templates in `%APPDATA%\Godot\export_templates\4.7.2.stable\`; only the x86_64 ones are installed. Smoke-test the build with `build/Clocky.exe --headless --quit-after 300`.
+- **Icon:** `icon.svg` is the source (owl-clock). After editing it, regenerate `assets/icon/clocky.ico` with `godot --headless --path . --script res://scripts/tools/BuildIcon.gd -- <preview_dir>`.
+  - The export stamps the icon into the exe through rcedit (`%LOCALAPPDATA%\Programs\rcedit\rcedit-x64.exe`). It's registered per machine as `export/windows/rcedit` in `%APPDATA%\Godot\editor_settings-4.7.tres`; a backup of the original is in `.bak`.
+  - The `.ico` is force-included in the pack (`include_filter`) because `windows_native_icon` loads it at runtime.
+  - To check what Windows shows, use PowerShell `[System.Drawing.Icon]::ExtractAssociatedIcon(exe)`.
 
 ## Gotchas (each of these caused a real bug)
 
