@@ -14,6 +14,54 @@ func _ready() -> void:
 	submit_button.text = tr("SUBMIT")
 	submit_button.pressed.connect(_on_submit_pressed)
 	answer_edit.text_submitted.connect(func(_t): _on_submit_pressed())
+	# Big number keypad on phones/tablets. It has no ":" key, so children
+	# type digits ("3", "1", "5") and the colon is filled in for them.
+	answer_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
+	answer_edit.max_length = 5
+	answer_edit.text_changed.connect(_on_text_changed)
+
+
+func _on_text_changed(new_text: String) -> void:
+	var formatted: String = format_digits(new_text)
+	if formatted != new_text:
+		answer_edit.text = formatted
+		answer_edit.caret_column = formatted.length()
+
+
+## "315" -> "3:15", "1015" -> "10:15"; 1-2 digits stay as typed (an hour).
+static func format_digits(text: String) -> String:
+	var digits := ""
+	for c in text:
+		if c >= "0" and c <= "9":
+			digits += c
+	digits = digits.substr(0, 4)
+	if digits.length() <= 2:
+		return digits
+	return digits.substr(0, digits.length() - 2) + ":" + digits.substr(digits.length() - 2)
+
+
+func _process(delta: float) -> void:
+	# The on-screen keyboard covers the bottom of the screen; slide this
+	# screen up just enough to keep the answer box visible while typing.
+	# Only ask on devices that have one: elsewhere (Windows) Godot warns
+	# on every call.
+	if not DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD):
+		return
+	var target: float = -keyboard_shift(DisplayServer.virtual_keyboard_get_height())
+	position.y = move_toward(position.y, target, delta * 2400.0)
+
+
+## How far (in viewport units) to lift the screen so the answer box sits
+## above an on-screen keyboard of `keyboard_px` physical pixels.
+func keyboard_shift(keyboard_px: float, window_px: float = -1.0) -> float:
+	if keyboard_px <= 0.0:
+		return 0.0
+	# This screen fills the viewport, so its height is the viewport height.
+	var vp_height: float = size.y
+	var window_height: float = window_px if window_px > 0.0 else max(float(DisplayServer.window_get_size().y), 1.0)
+	var keyboard_vp: float = keyboard_px * vp_height / window_height
+	var answer_bottom: float = answer_edit.get_global_rect().end.y - position.y
+	return max(0.0, answer_bottom + 16.0 - (vp_height - keyboard_vp))
 
 
 func _on_setup() -> void:
@@ -51,7 +99,10 @@ func _on_submit_pressed() -> void:
 func _parse_time(text: String):
 	var t: String = text.strip_edges()
 	if not t.contains(":"):
-		return null
+		# Digits only (number keypad): "3" means 3:00, "315" means 3:15.
+		if not t.is_valid_int() or t.length() > 4:
+			return null
+		t = format_digits(t) if t.length() > 2 else t + ":00"
 	var parts: PackedStringArray = t.split(":")
 	if parts.size() != 2:
 		return null

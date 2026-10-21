@@ -20,6 +20,9 @@ func _ready() -> void:
 	# own window - leave both alone.
 	if DisplayServer.get_name() == "headless" or "--script" in OS.get_cmdline_args() or "-s" in OS.get_cmdline_args():
 		return
+	# Phones/tablets have one screen and the OS manages fullscreen.
+	if OS.has_feature("mobile"):
+		return
 
 	var saved: int = int(ProgressStore.get_setting(SCREEN_SETTING, -1))
 	var forced_by_cli: bool = "--screen" in OS.get_cmdline_args()

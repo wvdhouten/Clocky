@@ -20,6 +20,31 @@ godot --headless --path C:\dev\Clocky --export-release "Windows Desktop" build/C
 
 This needs the Godot **4.7.2** Windows export templates in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. Install them via the editor's *Editor → Manage Export Templates*. The `build/` folder is git-ignored.
 
+### Android (APK)
+
+```
+godot --headless --path C:\dev\Clocky --export-debug "Android" build/Clocky.apk
+```
+
+The APK is about 29 MB and supports Android 7.0+ on 64-bit ARM, which covers all current phones and tablets. It requests no permissions.
+
+**Install on a device** with either method:
+- Copy `Clocky.apk` to the device, open it, and allow "Install unknown apps" when asked.
+- Or enable USB debugging and run `adb install -r build\Clocky.apk`.
+
+**One-time setup on the build PC** (already done on this machine):
+- **Java:** a JDK; 17+ works, 23 is used here.
+- **Android SDK** in `%LOCALAPPDATA%\Android\Sdk`, with `platform-tools`, `build-tools;35.0.1` and `platforms;android-35`.
+- **Godot 4.7.2 Android export templates.**
+- **A debug keystore** at `%APPDATA%\Godot\keystores\debug.keystore` (alias `androiddebugkey`, password `android`).
+
+All of these are registered in Godot's editor settings under `export/android/*`. A Play Store release would additionally need your own release keystore and an AAB (Gradle) build.
+
+**On Android:**
+- Back steps back through the app; at the main menu it closes it.
+- The ⏻ exit button is hidden.
+- "Type the time" uses the number keypad: type `315` for 3:15, and the colon is added automatically.
+
 ### App icon
 
 `icon.svg` (an owl-clock) is the source. `assets/icon/clocky.ico` is generated from it:

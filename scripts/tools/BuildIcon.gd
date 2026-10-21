@@ -44,11 +44,62 @@ func _init() -> void:
 		f.store_buffer(png)
 	f.close()
 	print("wrote %s (%d sizes)" % [OUT_ICO, SIZES.size()])
+	_android_icons(svg)
 
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0:
 		_preview(images, args[0])
 	quit()
+
+
+## Android launcher icons. Adaptive icons (Android 8+) are a 432px
+## foreground over a 432px background, masked by the launcher to a circle,
+## squircle, etc. Only the central ~61% is guaranteed visible, so the owl
+## clock (which fills its whole square, ear tips in the corners) is drawn
+## at 212px in the middle of a transparent foreground.
+func _android_icons(svg: String) -> void:
+	var dir := "res://assets/icon/android"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir))
+
+	var legacy := Image.new()
+	legacy.load_svg_from_string(svg, 192.0 / 256.0)
+	legacy.save_png(dir.path_join("icon_192.png"))
+
+	var art := Image.new()
+	art.load_svg_from_string(svg, 212.0 / 256.0)
+	var fg := Image.create(432, 432, false, Image.FORMAT_RGBA8)
+	fg.fill(Color(0, 0, 0, 0))
+	fg.blend_rect(art, Rect2i(Vector2i.ZERO, art.get_size()), Vector2i((432 - 212) / 2, (432 - 212) / 2))
+	fg.save_png(dir.path_join("adaptive_foreground_432.png"))
+
+	# Sky-blue background, matching the app's sky.
+	var bg := Image.create(432, 432, false, Image.FORMAT_RGBA8)
+	for y in 432:
+		bg.fill_rect(Rect2i(0, y, 432, 1), Color("79c6f6").lerp(Color("bfe6ff"), y / 431.0))
+	bg.save_png(dir.path_join("adaptive_background_432.png"))
+	print("wrote Android icons in ", dir)
+	_adaptive_preview(fg, bg)
+
+
+var _android_preview: Image
+
+
+## How the adaptive icon looks under a circle mask (the strictest common
+## launcher shape), kept for the preview sheet.
+func _adaptive_preview(fg: Image, bg: Image) -> void:
+	var out := Image.create(432, 432, false, Image.FORMAT_RGBA8)
+	out.fill(Color(0, 0, 0, 0))
+	# Launchers show the inner 72/108 of the canvas, then mask it.
+	var view := Rect2i(72, 72, 288, 288)
+	var composed: Image = bg.duplicate()
+	composed.blend_rect(fg, Rect2i(0, 0, 432, 432), Vector2i.ZERO)
+	var crop := composed.get_region(view)
+	crop.resize(432, 432, Image.INTERPOLATE_BILINEAR)
+	for y in 432:
+		for x in 432:
+			if Vector2(x - 215.5, y - 215.5).length() <= 216.0:
+				out.set_pixel(x, y, crop.get_pixel(x, y))
+	_android_preview = out
 
 
 ## Each size enlarged 4x with nearest-neighbour on a light and a dark strip,
@@ -73,3 +124,6 @@ func _preview(images: Array[Image], dir: String) -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	sheet.save_png(dir.path_join("icon_preview.png"))
 	print("preview: ", dir.path_join("icon_preview.png"))
+	if _android_preview:
+		_android_preview.save_png(dir.path_join("android_adaptive_circle_preview.png"))
+		print("preview: ", dir.path_join("android_adaptive_circle_preview.png"))

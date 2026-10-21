@@ -33,10 +33,13 @@ func _init() -> void:
 		n.setup(tier3, q))
 
 	_check_free_form_24h_parsing()
+	await _check_keypad_input()
+	await _check_back_navigation()
 	await _check_clock_number_setting()
-	# 1280x800 is the design size; 1422x800 is what a 16:9 monitor gives
-	# with the "expand" stretch aspect.
-	for host_size in [Vector2(1280, 800), Vector2(1422, 800)]:
+	# Logical viewport sizes under the "expand" stretch aspect: 1280x800 is
+	# the design size (16:10), 1422x800 a 16:9 monitor, 1280x960 a 4:3
+	# tablet, and 1778x800 a 20:9 phone in landscape.
+	for host_size in [Vector2(1280, 800), Vector2(1422, 800), Vector2(1280, 960), Vector2(1778, 800)]:
 		for path in ["res://scenes/exercises/ReadClockMultipleChoice.tscn",
 				"res://scenes/exercises/ReadClockFreeForm.tscn",
 				"res://scenes/exercises/SetTheClock.tscn"]:
@@ -200,6 +203,12 @@ func _check_free_form_24h_parsing() -> void:
 		["12:00", 0, 0, true],
 		["24:00", 0, 0, false],
 		["nonsense", 0, 0, false],
+		["315", 3, 15, true],
+		["1530", 3, 30, true],
+		["3", 3, 0, true],
+		["12", 0, 0, true],
+		["99", 0, 0, false],
+		["12345", 0, 0, false],
 	]
 	for c in cases:
 		var parsed = inst._parse_time(c[0])
@@ -236,3 +245,65 @@ func _try_instantiate(path: String, after: Callable = Callable()) -> void:
 	root.remove_child(inst)
 	inst.queue_free()
 	print("ok   instantiated %s" % path)
+
+func _check(ok: bool, label: String) -> void:
+	if not ok:
+		failures += 1
+	print(("ok   " if ok else "FAIL ") + label)
+
+
+## Number keypad on Android has no ":" - digits are auto-formatted, and the
+## screen lifts so an on-screen keyboard never covers the answer box.
+func _check_keypad_input() -> void:
+	var FreeForm = load("res://scenes/exercises/ReadClockFreeForm.gd")
+	for c in [["3", "3"], ["31", "31"], ["315", "3:15"], ["1015", "10:15"], ["3:15", "3:15"], ["10155", "10:15"], ["a3b1c5", "3:15"]]:
+		_check(FreeForm.format_digits(c[0]) == c[1], "format_digits('%s') -> '%s' (got '%s')" % [c[0], c[1], FreeForm.format_digits(c[0])])
+
+	var host := Control.new()
+	host.size = Vector2(1280, 800)
+	root.add_child(host)
+	var inst = load("res://scenes/exercises/ReadClockFreeForm.tscn").instantiate()
+	host.add_child(inst)
+	inst.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	await process_frame
+	var tier = load("res://resources/tiers/tier_3_quarter.tres")
+	var rng := RandomNumberGenerator.new()
+	inst.setup(tier, QuestionGenerator.generate(tier, rng))
+	await process_frame
+	var vp_h: float = inst.size.y
+	_check(inst.keyboard_shift(0.0, vp_h) == 0.0, "no keyboard -> no shift")
+	var kb: float = vp_h * 0.42  # a typical landscape tablet keyboard
+	var shift: float = inst.keyboard_shift(kb, vp_h)
+	var answer_bottom: float = inst.answer_edit.get_global_rect().end.y
+	_check(shift > 0.0 and answer_bottom - shift <= vp_h - kb, "keyboard lift keeps answer box visible (shift %.0f)" % shift)
+	root.remove_child(host)
+	host.queue_free()
+
+
+## Android back: dialogs close first, then exercise -> picker -> menu.
+func _check_back_navigation() -> void:
+	var main = load("res://scenes/main/Main.tscn").instantiate()
+	root.add_child(main)
+	await process_frame
+	var ex = load("res://resources/exercises/ex_set_clock.tres")
+	var tier = load("res://resources/tiers/tier_1_ohclock.tres")
+	main._on_exercise_chosen(ex, tier)
+	await process_frame
+	main.get_node("LocaleSwitcher")._toggle_dialog()
+	main.go_back()
+	await process_frame
+	_check(main._screen_kind == main.Screen.EXERCISE and not main.get_node("LocaleSwitcher").dialog_panel.visible,
+		"back closes an open dialog first")
+	main.go_back()
+	await process_frame
+	_check(main._screen_kind == main.Screen.PICKER, "back from exercise -> picker")
+	main._current_screen._on_exercise_picked(ex)
+	main.go_back()
+	await process_frame
+	_check(main._screen_kind == main.Screen.PICKER and main._current_screen._chosen_exercise_def == null,
+		"back from difficulty -> activity picker")
+	main.go_back()
+	await process_frame
+	_check(main._screen_kind == main.Screen.MENU, "back from activity picker -> menu")
+	root.remove_child(main)
+	main.queue_free()

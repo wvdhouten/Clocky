@@ -11,6 +11,13 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
 - **Owl mascot**, confetti, and sound effects synthesized in code, with a mute toggle.
 - **Kiosk:** starts fullscreen with stretch aspect `expand`. Exit by holding the top-left ⏻ for 3 seconds; Alt+F4 also works.
 - **Multi-monitor (`KioskWindow` autoload):** Windows keeps a fullscreen window's old size when it's moved to another monitor. That caused a wrong aspect and a cut-off owl on the user's 2560×1600 + 2880×1620 setup. `KioskWindow` polls for a monitor change, re-applies fullscreen there, and saves the `kiosk_screen` setting so the next launch opens on the same monitor. `--screen N` on the command line overrides it. It does nothing in headless runs and `--script` runs. Test it with `scripts/tools/KioskWindowTest.gd`, which needs a window and 2 monitors and briefly goes fullscreen on each.
+- **Android** (preset "Android": arm64 only, `com.wvdhouten.clocky`, no permissions, debug-signed):
+  - Back (`NOTIFICATION_WM_GO_BACK_REQUEST`, with `quit_on_go_back=false`) is handled by `Main.go_back()`. Order: open dialog → exercise/summary → picker → menu → quit.
+  - `ParentExitButton` and `KioskWindow` are disabled when `OS.has_feature("mobile")`.
+  - Type the Time uses the number keypad, with digits auto-formatted to "3:15" by `format_digits()`. It lifts itself above the on-screen keyboard (`keyboard_shift()`).
+  - Only query `DisplayServer.virtual_keyboard_get_height()` when `has_feature(FEATURE_VIRTUAL_KEYBOARD)`; otherwise Windows logs a warning every frame.
+  - Android requires `import_etc2_astc=true`.
+  - The slim-engine idea (a custom Godot build to shrink the 110 MB exe) was dropped as not worth the maintenance.
 - `PhraseBuilder` (time in words per locale, `scripts/speech/`) is currently unused but **kept on purpose** for possible reuse. Its Dutch idioms ("half vier" = 3:30, anchored to the *next* hour) are the riskiest correctness area.
 - The user playtests every step and gives concrete UX feedback. A UI change isn't done until it has been verified visually (see Screenshots).
 
@@ -59,7 +66,8 @@ The Godot executable (winget install, not on PATH):
   It uses a fixed RNG seed and writes zoom crops (`*z_*.png`) for checking edge quality. Look at them with the Read tool.
 - **Build:** `godot --headless --path . --export-release "Windows Desktop" build/Clocky.exe`
   This needs the 4.7.2 Windows templates in `%APPDATA%\Godot\export_templates\4.7.2.stable\`; only the x86_64 ones are installed. Smoke-test the build with `build/Clocky.exe --headless --quit-after 300`.
-- **Icon:** `icon.svg` is the source (owl-clock). After editing it, regenerate `assets/icon/clocky.ico` with `godot --headless --path . --script res://scripts/tools/BuildIcon.gd -- <preview_dir>`.
+- **Android APK:** `godot --headless --path . --export-debug "Android" build/Clocky.apk`, then inspect it with `aapt2 dump badging` from `%LOCALAPPDATA%\Android\Sdk\build-tools\35.0.1`. The layout tests also cover 4:3 tablets (1280×960) and 20:9 phones (1778×800).
+- **Icon:** `icon.svg` is the source (owl-clock). After editing it, regenerate `assets/icon/clocky.ico` and the Android launcher icons (`assets/icon/android/`; the adaptive foreground keeps the art inside the circle-mask safe zone) with `godot --headless --path . --script res://scripts/tools/BuildIcon.gd -- <preview_dir>`.
   - The export stamps the icon into the exe through rcedit (`%LOCALAPPDATA%\Programs\rcedit\rcedit-x64.exe`). It's registered per machine as `export/windows/rcedit` in `%APPDATA%\Godot\editor_settings-4.7.tres`; a backup of the original is in `.bak`.
   - The `.ico` is force-included in the pack (`include_filter`) because `windows_native_icon` loads it at runtime.
   - To check what Windows shows, use PowerShell `[System.Drawing.Icon]::ExtractAssociatedIcon(exe)`.

@@ -15,6 +15,7 @@ run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 config/windows_native_icon="res://assets/icon/clocky.ico"
+config/quit_on_go_back=false
 
 [autoload]
 
@@ -33,7 +34,7 @@ window/size/viewport_height=800
 window/size/mode=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation="landscape"
+window/handheld/orientation=4
 
 [input_devices]
 
@@ -46,5 +47,6 @@ locale/fallback="en"
 
 [rendering]
 
+textures/vram_compression/import_etc2_astc=true
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
