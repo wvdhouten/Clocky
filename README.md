@@ -10,6 +10,16 @@ Open the folder in Godot 4.7+ or run:
 godot --path C:\dev\Clocky
 ```
 
+## Building an executable
+
+The "Windows Desktop" preset is in `export_presets.cfg`. It builds a single self-contained `Clocky.exe` with the game data embedded, so Godot isn't needed on the target PC. The test, screenshot and debug scripts are left out.
+
+```
+godot --headless --path C:\dev\Clocky --export-release "Windows Desktop" build/Clocky.exe
+```
+
+This needs the Godot **4.7.2** Windows export templates in `%APPDATA%\Godot\export_templates\4.7.2.stable\`. Install them via the editor's *Editor → Manage Export Templates*. The `build/` folder is git-ignored. The exe uses Godot's default icon. A custom icon needs [rcedit](https://github.com/electron/rcedit), configured in the editor settings, plus `application/modify_resources=true`.
+
 ## Kiosk mode
 
 The app starts fullscreen and stretches to fill the screen. Children can't close it by accident. To exit, **press and hold the round ⏻ button in the top-left corner for 3 seconds** until the ring fills. Alt+F4 also works.
