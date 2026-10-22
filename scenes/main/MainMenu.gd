@@ -3,6 +3,7 @@ extends Control
 signal start_pressed()
 
 const TimeValue = preload("res://scripts/clock_logic/TimeValue.gd")
+const SpeakButtonScript = preload("res://scenes/ui_components/SpeakButton.gd")
 
 @onready var start_button: Button = $StartButton
 @onready var live_clock: Control = $LiveClock
@@ -14,6 +15,7 @@ func _ready() -> void:
 	start_button.text = tr("START")
 	start_button.pressed.connect(func(): start_pressed.emit())
 	LocaleManager.locale_changed.connect(func(_l): start_button.text = tr("START"))
+	SpeakButtonScript.attach(start_button, func(): return start_button.text)
 
 	# A real, ticking clock showing the actual time right now.
 	_show_current_time()

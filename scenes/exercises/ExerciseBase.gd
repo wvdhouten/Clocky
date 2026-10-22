@@ -17,6 +17,7 @@ signal next_requested()
 signal exit_requested()
 
 const SpeakButtonScript = preload("res://scenes/ui_components/SpeakButton.gd")
+const HintBuilder = preload("res://scripts/speech/HintBuilder.gd")
 
 @onready var prompt_label: Label = $PromptLabel
 @onready var feedback_label: Label = $FeedbackLabel
@@ -25,15 +26,19 @@ const SpeakButtonScript = preload("res://scenes/ui_components/SpeakButton.gd")
 
 var tier
 var question
-## Tap-to-hear 🗣️ buttons, created in code beside the prompt banner and
-## (once answered) beside the feedback text.
+## Tap-to-hear 🗣️ badges, pinned to the top-right corner of the prompt
+## banner, the feedback text and every button.
 var prompt_speaker: Button
 var feedback_speaker: Button
 var _feedback_speech: String = ""
 ## The feedback label's designed center/half-width; the label is shrunk to
-## its text so the 🗣️ can sit right beside the words.
+## its text so its 🗣️ badge sits right at the end of the words.
 var _feedback_center_x: float
 var _feedback_max_half: float
+## True once the current question is answered (no more ❓ hints).
+var is_answered: bool = false
+var _hints: Array = []
+var _hint_index: int = 0
 
 
 func _ready() -> void:
@@ -46,19 +51,13 @@ func _ready() -> void:
 		exit_requested.emit())
 	LocaleManager.locale_changed.connect(_on_locale_changed)
 
-	prompt_speaker = _make_speaker(prompt_label, func(): return _prompt_speech())
-	prompt_speaker.name = "PromptSpeaker"
-	var mid: float = (prompt_label.offset_top + prompt_label.offset_bottom) / 2.0
-	prompt_speaker.offset_right = prompt_label.offset_left - 12.0
-	prompt_speaker.offset_left = prompt_speaker.offset_right - 52.0
-	prompt_speaker.offset_top = mid - 26.0
-	prompt_speaker.offset_bottom = mid + 26.0
-
+	prompt_speaker = SpeakButtonScript.attach(prompt_label, func(): return _prompt_speech())
 	_feedback_center_x = (feedback_label.offset_left + feedback_label.offset_right) / 2.0
 	_feedback_max_half = (feedback_label.offset_right - feedback_label.offset_left) / 2.0
-	feedback_speaker = _make_speaker(feedback_label, func(): return _feedback_speech)
-	feedback_speaker.name = "FeedbackSpeaker"
+	feedback_speaker = SpeakButtonScript.attach(feedback_label, func(): return _feedback_speech)
 	feedback_speaker.active = false
+	_attach_button_speaker(exit_button)
+	_attach_button_speaker(next_button)
 
 
 ## What the prompt's 🗣️ reads. Subclasses override to speak more naturally
@@ -67,34 +66,23 @@ func _prompt_speech() -> String:
 	return prompt_label.text
 
 
-func _make_speaker(beside: Control, source: Callable) -> Button:
-	var b: Button = SpeakButtonScript.new()
-	b.source = source
-	add_child(b)
-	# Same horizontal/vertical anchor as the label it belongs to.
-	b.anchor_left = beside.anchor_left
-	b.anchor_right = beside.anchor_left
-	b.anchor_top = beside.anchor_top
-	b.anchor_bottom = beside.anchor_top
-	return b
+## A 🗣️ badge that reads the button's own (current) text.
+func _attach_button_speaker(button: Button) -> Button:
+	return SpeakButtonScript.attach(button, func(): return button.text)
 
 
-## Shows the feedback text, with a 🗣️ right beside the (centered) words.
-## `spoken` lets the voice say it more naturally than the screen does.
+## Shows the feedback text, shrinking the label to the words so its 🗣️
+## badge sits right at their end. `spoken` lets the voice say it more
+## naturally than the screen does.
 func _set_feedback(display: String, spoken: String = "") -> void:
 	feedback_label.text = display
 	_feedback_speech = spoken if not spoken.is_empty() else display
 	var font: Font = feedback_label.get_theme_font("font")
 	var font_size: int = feedback_label.get_theme_font_size("font_size")
 	var text_w: float = font.get_string_size(display, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var half: float = min(text_w / 2.0 + 6.0, _feedback_max_half)
+	var half: float = min(text_w / 2.0 + SpeakButtonScript.LABEL_PAD + 2.0, _feedback_max_half)
 	feedback_label.offset_left = _feedback_center_x - half
 	feedback_label.offset_right = _feedback_center_x + half
-	var mid: float = (feedback_label.offset_top + feedback_label.offset_bottom) / 2.0
-	feedback_speaker.offset_right = _feedback_center_x - half - 8.0
-	feedback_speaker.offset_left = feedback_speaker.offset_right - 52.0
-	feedback_speaker.offset_top = mid - 26.0
-	feedback_speaker.offset_bottom = mid + 26.0
 	feedback_speaker.active = not display.is_empty()
 
 
@@ -117,6 +105,10 @@ func setup(p_tier, p_question) -> void:
 	question = p_question
 	_set_feedback("")
 	next_button.visible = false
+	is_answered = false
+	_hints = []
+	_hint_index = 0
+	_highlight_hand(0)
 	_on_setup()
 
 
@@ -124,7 +116,32 @@ func _on_setup() -> void:
 	pass  # overridden by subclasses
 
 
+## The ❓ hints for this question, in order (see HintBuilder). Reading
+## exercises explain the hands of the shown clock; setting exercises say
+## where each hand should go.
+func _hints_for_question() -> Array:
+	return HintBuilder.read_hints(question.target)
+
+
+## Next hint text (cycling round), highlighting the hand it talks about.
+func next_hint() -> String:
+	if _hints.is_empty():
+		_hints = _hints_for_question()
+	var hint: Dictionary = _hints[_hint_index % _hints.size()]
+	_hint_index += 1
+	_highlight_hand(hint["hand"])
+	return HintBuilder.text(hint)
+
+
+func _highlight_hand(hand: int) -> void:
+	var clock_node: Node = get_node_or_null("AnalogClock")
+	if clock_node:
+		clock_node.set_highlight(hand)
+
+
 func _report_answer(correct: bool) -> void:
+	is_answered = true
+	_highlight_hand(0)
 	_set_feedback(tr("FEEDBACK_CORRECT") if correct else tr("FEEDBACK_WRONG"))
 	next_button.visible = true
 	_pop_in(next_button)

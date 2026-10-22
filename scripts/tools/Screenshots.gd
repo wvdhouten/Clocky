@@ -25,6 +25,7 @@ func _run() -> void:
 	store.record_attempt("READ_MC", 1, true, 1)
 	store.record_attempt("READ_MC", 2, true, 1)
 
+	root.get_node("Speech").force_available = true  # show the 🗣️ badges
 	main = load("res://scenes/main/Main.tscn").instantiate()
 	root.add_child(main)
 	await _shot("01_menu")
@@ -33,13 +34,19 @@ func _run() -> void:
 	await _shot("02_pick_activity", 0.6)
 
 	var ex_mc = load("res://resources/exercises/ex_read_mc.tres")
-	var ex_free = load("res://resources/exercises/ex_read_free.tres")
+	var ex_wheel = load("res://resources/exercises/ex_read_free.tres")
 	var ex_set = load("res://resources/exercises/ex_set_clock.tres")
+	var ex_set_mc = load("res://resources/exercises/ex_set_mc.tres")
+	var ex_learn = load("res://resources/exercises/ex_learn.tres")
+	var tier1 = load("res://resources/tiers/tier_1_ohclock.tres")
+	var tier2 = load("res://resources/tiers/tier_2_half.tres")
 	var tier3 = load("res://resources/tiers/tier_3_quarter.tres")
 	var tier4 = load("res://resources/tiers/tier_4_five_min.tres")
 
-	main._current_screen._on_exercise_picked(ex_mc)
+	main._current_screen._on_activity_picked("READ")
 	await _shot("03_pick_difficulty", 0.6)
+	main._current_screen._on_activity_picked("LEARN")
+	await _shot("03b_pick_lesson", 0.6)
 
 	main._on_exercise_chosen(ex_mc, tier3)
 	await _shot("04_mc_question")
@@ -51,6 +58,10 @@ func _run() -> void:
 	await _shot("05_mc_wrong", 0.45)
 	_zoom("05_mc_wrong", "05z_owl_zoom", Rect2i(1080, 590, 180, 190), 3)
 	main._on_next_requested()
+	main.show_hint()
+	await _shot("05a_hint_hour", 0.5)
+	main.show_hint()
+	await _shot("05a_hint_minute", 0.5)
 	screen = main._current_screen
 	for pair in screen._option_buttons:
 		if pair[0].equals(screen.question.target):
@@ -59,8 +70,10 @@ func _run() -> void:
 	await _shot("05b_mc_correct", 0.3)
 
 	store.set_setting("clock_numbers", 2)
-	main._on_exercise_chosen(ex_free, tier4)
-	await _shot("06_free_hours_minutes")
+	main._on_exercise_chosen(ex_wheel, tier4)
+	await _shot("06_wheel_question")
+	main._current_screen._on_check_pressed()
+	await _shot("06b_wheel_wrong_shows_answer", 1.0)
 
 	store.set_setting("clock_numbers", 0)
 	main._on_exercise_chosen(ex_set, tier3)
@@ -71,6 +84,22 @@ func _run() -> void:
 	_zoom("08_set_wrong_shows_answer", "08z_rim_zoom", Rect2i(700, 170, 140, 140), 4)
 
 	store.set_setting("clock_numbers", 1)
+	main._on_exercise_chosen(ex_set_mc, tier2)
+	await _shot("08c_set_choose", 0.4)
+	main.show_hint()
+	await _shot("08d_set_choose_hint", 0.4)
+
+	main._on_exercise_chosen(ex_learn, tier1)
+	await _shot("08e_learn_step1", 0.6)
+	main._current_screen.show_step(1)
+	await _shot("08f_learn_short_hand", 1.2)
+	main._current_screen.show_step(main._current_screen._steps.size() - 1)
+	await _shot("08g_learn_try", 0.6)
+
+	root.get_node("LocaleManager").set_app_locale("nl")
+	main._on_exercise_chosen(ex_learn, tier2)
+	main._current_screen.show_step(3)
+	await _shot("08h_learn_dutch_half", 1.2)
 	root.get_node("LocaleManager").set_app_locale("ro")
 	main._on_exercise_chosen(ex_mc, tier3)
 	await _shot("09_mc_romanian")
@@ -83,6 +112,11 @@ func _run() -> void:
 
 	main.get_node("SafeArea/LocaleSwitcher")._toggle_dialog()
 	await _shot("11_locale_dialog")
+	main.get_node("SafeArea/NumberModeSwitcher")._toggle_dialog()
+	await _shot("11b_numbers_dialog")
+	main.get_node("SafeArea/NumberModeSwitcher").close_dialog()
+	await _shot("11c_top_bar")
+	_zoom("11c_top_bar", "11z_top_bar_zoom", Rect2i(1070, 0, 210, 80), 3)
 
 	var exit_btn = main.get_node("SafeArea/ParentExitButton")
 	exit_btn._holding = true
@@ -93,9 +127,8 @@ func _run() -> void:
 
 	# 16:9 monitor: the "expand" aspect widens the logical viewport.
 	DisplayServer.window_set_size(Vector2i(1422, 800))
-	main.get_node("SafeArea/LocaleSwitcher").close_dialog()
 	main.show_tier_select()
-	main._current_screen._on_exercise_picked(ex_mc)
+	main._current_screen._on_activity_picked("SET")
 	await _shot("13_wide_difficulty", 0.6)
 
 	print("screenshots saved to ", out_dir)

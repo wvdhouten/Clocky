@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui_components/OwlBubble.gd" id="1"]
+
+[node name="OwlBubble" type="Control"]
+mouse_filter = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -570.0
+offset_top = -320.0
+offset_right = -150.0
+offset_bottom = -212.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Text" type="Label" parent="Panel"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+autowrap_mode = 3
+vertical_alignment = 1

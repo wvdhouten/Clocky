@@ -4,7 +4,7 @@ START,Start,Start,Start
 PICK_ACTIVITY,Pick an activity,Kies een activiteit,Alege o activitate
 PICK_DIFFICULTY,Pick a difficulty,Kies een moeilijkheidsgraad,Alege o dificultate
 EX_READ_MC,Read the Clock (Multiple Choice),Lees de klok (meerkeuze),Citește ceasul (grilă)
-EX_READ_FREE,Read the Clock (Type the Time),Lees de klok (typ de tijd),Citește ceasul (scrie ora)
+EX_READ_FREE,Read the Clock (Scroll),Lees de klok (draaien),Citește ceasul (rotește)
 EX_SET_CLOCK,Set the Clock,Zet de klok,Potrivește ceasul
 TIER_1,O'Clock,Hele uren,Ora fixă
 TIER_2,Half Past,Half uur,Jumătate
@@ -12,10 +12,7 @@ TIER_3,Quarter Past/To,Kwartier,Sfert
 TIER_4,Five Minutes,Vijf minuten,Cinci minute
 TIER_5,Exact Minute,Exacte minuut,Minut exact
 READ_MC_PROMPT,What time is it?,Hoe laat is het?,Cât e ceasul?
-READ_FREE_PROMPT,What time is it? Type it like 3:15,Hoe laat is het? Typ het zoals 3:15,Cât e ceasul? Scrie ca 3:15
-FORMAT_HINT,Try a format like 3:15,Probeer bijvoorbeeld 3:15,Încearcă un format ca 3:15
 SET_CLOCK_PROMPT,Set the clock to {time},Zet de klok op {time},Potrivește ceasul la {time}
-SUBMIT,Submit,Verzenden,Trimite
 CHECK,Check,Controleer,Verifică
 NEXT,Next,Volgende,Următor
 EXIT,Exit,Stoppen,Ieșire
@@ -29,3 +26,52 @@ NUMBERS_NONE,No numbers,Geen cijfers,Fără cifre
 NUMBERS_HOURS,Hours,Uren,Ore
 NUMBERS_ALL,Hours and minutes,Uren en minuten,Ore și minute
 BACK,Back,Terug,Înapoi
+EX_SET_MC,Set the Clock (Multiple Choice),Zet de klok (meerkeuze),Potrivește ceasul (grilă)
+ACTIVITY_LEARN,Learn,Leren,Învață
+ACTIVITY_READ,Read the Clock,Lees de klok,Citește ceasul
+ACTIVITY_SET,Set the Clock,Zet de klok,Potrivește ceasul
+MODE_CHOOSE,Choose,Kiezen,Alege
+MODE_SCROLL,Scroll,Draaien,Rotește
+MODE_DRAG,Drag,Slepen,Trage
+PICK_LESSON,Pick a lesson,Kies een les,Alege o lecție
+DONE,Done,Klaar,Gata
+READ_WHEEL_PROMPT,What time is it? Turn the wheels.,Hoe laat is het? Draai aan de wieltjes.,Cât e ceasul? Rotește rotițele.
+SET_MC_PROMPT,Which clock shows {time}?,Welke klok staat op {time}?,Care ceas arată {time}?
+HINT_READ_HOUR_ON,"Look at the short hand. It points at the {h}, so the hour is {h}.","Kijk naar de kleine wijzer. Die wijst naar de {h}, dus het uur is {h}.","Uită-te la limba mică. Arată spre {h}, deci ora este {h}."
+HINT_READ_HOUR_BETWEEN,"Look at the short hand. It is between the {h} and the {h1}. It has passed the {h}, so the hour is {h}.","Kijk naar de kleine wijzer. Die staat tussen de {h} en de {h1}. Hij is de {h} al voorbij, dus het uur is {h}.","Uită-te la limba mică. Este între {h} și {h1}. A trecut de {h}, deci ora este {h}."
+HINT_READ_MIN_TWELVE,"Now the long hand. It points straight up at the 12, so it is 0 minutes: o'clock!","Nu de grote wijzer. Die wijst recht omhoog naar de 12, dus 0 minuten: een heel uur!","Acum limba mare. Arată drept în sus, spre 12, deci 0 minute: ora fixă!"
+HINT_READ_MIN_ON,Now the long hand. It points at the {n}. Count by fives: {m} minutes.,Nu de grote wijzer. Die wijst naar de {n}. Tel per vijf: {m} minuten.,Acum limba mare. Arată spre {n}. Numără din cinci în cinci: {m} minute.
+HINT_READ_MIN_TICKS,"Now the long hand. It is a little past the {n}. Count by fives to {m5}, then count the small lines: {k} more makes {m} minutes.",Nu de grote wijzer. Die staat net na de {n}. Tel per vijf tot {m5} en tel dan de streepjes: {k} erbij is {m} minuten.,"Acum limba mare. Este puțin după {n}. Numără din cinci în cinci până la {m5}, apoi numără liniuțele: încă {k} fac {m} minute."
+HINT_READ_MIN_TICKS_TOP,Now the long hand. It is a little past the 12. Count the small lines: {m} minutes.,Nu de grote wijzer. Die staat net na de 12. Tel de streepjes: {m} minuten.,Acum limba mare. Este puțin după 12. Numără liniuțele: {m} minute.
+HINT_SET_MIN_TWELVE,"First the long hand: it should point straight up, at the 12.","Eerst de grote wijzer: die moet recht omhoog wijzen, naar de 12.","Întâi limba mare: trebuie să arate drept în sus, spre 12."
+HINT_SET_MIN_ON,First the long hand: it should point at the {n}. That is {m} minutes.,Eerst de grote wijzer: die moet naar de {n} wijzen. Dat is {m} minuten.,Întâi limba mare: trebuie să arate spre {n}. Asta înseamnă {m} minute.
+HINT_SET_MIN_TICKS,"First the long hand: a little past the {n}. Count by fives to {m5}, then count on {k} more: {m} minutes.",Eerst de grote wijzer: net na de {n}. Tel per vijf tot {m5} en dan nog {k} verder: {m} minuten.,"Întâi limba mare: puțin după {n}. Numără din cinci în cinci până la {m5}, apoi încă {k}: {m} minute."
+HINT_SET_MIN_TICKS_TOP,First the long hand: a little past the 12. Count {m} small lines: {m} minutes.,Eerst de grote wijzer: net na de 12. Tel {m} streepjes: {m} minuten.,Întâi limba mare: puțin după 12. Numără {m} liniuțe: {m} minute.
+HINT_SET_HOUR_ON,Then the short hand: it should point at the {h}.,Dan de kleine wijzer: die moet naar de {h} wijzen.,Apoi limba mică: trebuie să arate spre {h}.
+HINT_SET_HOUR_BETWEEN,Then the short hand: it should be between the {h} and the {h1}.,Dan de kleine wijzer: die moet tussen de {h} en de {h1} staan.,Apoi limba mică: trebuie să fie între {h} și {h1}.
+LEARN_1_1,"This is a clock! It has the numbers 1 to 12, and two hands that turn around.","Dit is een klok! Hij heeft de cijfers 1 tot en met 12, en twee wijzers die rond draaien.",Acesta este un ceas! Are numerele de la 1 la 12 și două limbi care se învârt.
+LEARN_1_2,The short hand is the hour hand. It tells you the hour.,De kleine wijzer is de urenwijzer. Die vertelt welk uur het is.,Limba mică arată ora. Ea îți spune cât e ora.
+LEARN_1_3,The long hand is the minute hand. It tells you the minutes.,De grote wijzer is de minutenwijzer. Die vertelt de minuten.,Limba mare arată minutele.
+LEARN_1_4,"When the long hand points straight up at the 12, it is exactly something o'clock.","Als de grote wijzer recht omhoog naar de 12 wijst, is het precies een heel uur.","Când limba mare arată drept în sus, spre 12, este o oră fixă."
+LEARN_1_5,"Then the short hand tells you which hour. It points at the 3, so it is {phrase}!","Dan vertelt de kleine wijzer welk uur. Die wijst naar de 3, dus het is {phrase}!","Atunci limba mică îți spune ce oră este. Arată spre 3, deci este {phrase}!"
+LEARN_1_6,"Look, the short hand moved to the 7. Now it is {phrase}.","Kijk, de kleine wijzer is naar de 7 gegaan. Nu is het {phrase}.","Uite, limba mică a ajuns la 7. Acum este {phrase}."
+LEARN_1_7,Your turn! Drag the short hand to the 4. The long hand stays at the 12.,Nu jij! Sleep de kleine wijzer naar de 4. De grote wijzer blijft op de 12.,Rândul tău! Trage limba mică la 4. Limba mare rămâne la 12.
+LEARN_2_1,"In one hour, the long hand goes all the way round. It starts at the 12.",In één uur draait de grote wijzer helemaal rond. Hij begint bij de 12.,"Într-o oră, limba mare face o tură completă. Pornește de la 12."
+LEARN_2_2,"Halfway round, it points down at the 6. That is half an hour: 30 minutes.","Halverwege wijst hij naar beneden, naar de 6. Dat is een half uur: 30 minuten.","La jumătatea drumului arată în jos, spre 6. Asta e o jumătate de oră: 30 de minute."
+LEARN_2_3,The short hand moves too. Now it is halfway between the 3 and the 4.,De kleine wijzer schuift ook mee. Nu staat hij halverwege de 3 en de 4.,Și limba mică se mișcă. Acum este la jumătatea drumului dintre 3 și 4.
+LEARN_2_4,So it is {phrase}: {time}.,"Het is dus {phrase}: {time}. We zeggen half vier, want het is al halfweg naar vier!",Deci este {phrase}: {time}.
+LEARN_2_5,Your turn! Set the clock to {time}.,Nu jij! Zet de klok op {time}.,Rândul tău! Potrivește ceasul la {time}.
+LEARN_3_1,"When the long hand points at the 3, a quarter of the hour has gone: 15 minutes.","Als de grote wijzer naar de 3 wijst, is een kwart van het uur voorbij: 15 minuten.","Când limba mare arată spre 3, a trecut un sfert de oră: 15 minute."
+LEARN_3_2,So this is {phrase}: {time}.,Dit is dus {phrase}: {time}.,Deci aceasta este {phrase}: {time}.
+LEARN_3_3,"When the long hand points at the 9, only a quarter is left until the next hour: 45 minutes.","Als de grote wijzer naar de 9 wijst, is er nog maar een kwartier tot het volgende uur: 45 minuten.","Când limba mare arată spre 9, mai rămâne doar un sfert până la ora următoare: 45 de minute."
+LEARN_3_4,The short hand is almost at the 4. It is {phrase}: {time}.,De kleine wijzer is bijna bij de 4. Het is {phrase}: {time}.,Limba mică a ajuns aproape de 4. Este {phrase}: {time}.
+LEARN_3_5,Your turn! Set the clock to {time}.,Nu jij! Zet de klok op {time}.,Rândul tău! Potrivește ceasul la {time}.
+LEARN_4_1,"For the long hand, every number means 5 minutes more. The small blue numbers show them.",Voor de grote wijzer betekent elk cijfer 5 minuten meer. De kleine blauwe cijfers laten ze zien.,"Pentru limba mare, fiecare număr înseamnă încă 5 minute. Numerele mici albastre le arată."
+LEARN_4_2,"The long hand points at the 2. Count by fives: 5, 10. That is 10 minutes.","De grote wijzer wijst naar de 2. Tel per vijf: 5, 10. Dat is 10 minuten.","Limba mare arată spre 2. Numără din cinci în cinci: 5, 10. Asta înseamnă 10 minute."
+LEARN_4_3,Now it points at the 8: 40 minutes. The time is {time}.,Nu wijst hij naar de 8: 40 minuten. Het is {time}.,Acum arată spre 8: 40 de minute. Ora este {time}.
+LEARN_4_4,Your turn! Set the clock to {time}.,Nu jij! Zet de klok op {time}.,Rândul tău! Potrivește ceasul la {time}.
+LEARN_5_1,Between two numbers there are small lines. Each small line is 1 minute.,Tussen twee cijfers staan kleine streepjes. Elk streepje is 1 minuut.,Între două numere sunt liniuțe mici. Fiecare liniuță este 1 minut.
+LEARN_5_2,"The long hand is 2 lines past the 2. Count 10, then 11, 12: that is 12 minutes.","De grote wijzer staat 2 streepjes na de 2. Tel 10, dan 11, 12: dat is 12 minuten.","Limba mare este la 2 liniuțe după 2. Numără 10, apoi 11, 12: asta înseamnă 12 minute."
+LEARN_5_3,So the time is {time}.,Het is dus {time}.,Deci ora este {time}.
+LEARN_5_4,Your turn! Set the clock to {time}.,Nu jij! Zet de klok op {time}.,Rândul tău! Potrivește ceasul la {time}.
+LEARN_TRY_DONE,Well done! That is {phrase}.,Goed zo! Dat is {phrase}.,Bravo! Asta este {phrase}.

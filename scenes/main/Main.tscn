@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scenes/main/Main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui_components/LocaleSwitcher.tscn" id="2"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui_components/Celebration.tscn" id="6"]
 [ext_resource type="Script" path="res://scenes/ui_components/MuteButton.gd" id="7"]
 [ext_resource type="Script" path="res://scenes/ui_components/ParentExitButton.gd" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/ui_components/OwlBubble.tscn" id="9"]
+[ext_resource type="Script" path="res://scenes/ui_components/GlyphButton.gd" id="10"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -36,15 +38,36 @@ anchor_bottom = 1.0
 [node name="Owl" parent="SafeArea" instance=ExtResource("5")]
 layout_mode = 1
 
+[node name="OwlBubble" parent="SafeArea" instance=ExtResource("9")]
+layout_mode = 1
+
+[node name="HintButton" type="Button" parent="SafeArea"]
+visible = false
+custom_minimum_size = Vector2(56, 56)
+theme_type_variation = &"TopBarButton"
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -262.0
+offset_top = -86.0
+offset_right = -206.0
+offset_bottom = -30.0
+script = ExtResource("10")
+glyph = "❓"
+
 [node name="MuteButton" type="Button" parent="SafeArea"]
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -228.0
+offset_left = -196.0
 offset_top = 12.0
-offset_right = -164.0
-offset_bottom = 62.0
+offset_right = -140.0
+offset_bottom = 68.0
 script = ExtResource("7")
 
 [node name="NumberModeSwitcher" parent="SafeArea" instance=ExtResource("3")]

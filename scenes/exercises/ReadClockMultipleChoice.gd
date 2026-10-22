@@ -29,6 +29,9 @@ func _on_setup() -> void:
 		btn.add_theme_font_size_override("font_size", 30)
 		btn.pressed.connect(_on_option_pressed.bind(opt, btn))
 		options_container.add_child(btn)
+		# Every option is read out the natural way ("quarter past three");
+		# the right one is no more special than the others.
+		SpeakButtonScript.attach(btn, func(): return LocaleManager.phrase_for_time(opt))
 		_option_buttons.append([opt, btn])
 
 

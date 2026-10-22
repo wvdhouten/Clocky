@@ -2,6 +2,8 @@ extends Control
 
 signal continue_pressed()
 
+const SpeakButtonScript = preload("res://scenes/ui_components/SpeakButton.gd")
+
 @onready var exercise_label: Label = $Card/VBox/ExerciseLabel
 @onready var tier_label: Label = $Card/VBox/TierLabel
 @onready var stars_row: HBoxContainer = $Card/VBox/StarsRow
@@ -14,6 +16,10 @@ var _last_stats: Dictionary = {}
 
 
 func _ready() -> void:
+	SpeakButtonScript.attach(exercise_label, func(): return "%s. %s" % [exercise_label.text, tier_label.text])
+	SpeakButtonScript.attach(mastered_label, func(): return mastered_label.text)
+	SpeakButtonScript.attach(total_label, func(): return total_label.text)
+	SpeakButtonScript.attach(continue_button, func(): return continue_button.text)
 	continue_button.text = tr("CONTINUE")
 	continue_button.pressed.connect(func(): continue_pressed.emit())
 	LocaleManager.locale_changed.connect(func(_l):

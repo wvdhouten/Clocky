@@ -3,13 +3,16 @@ extends Control
 const MainMenuScene = preload("res://scenes/main/MainMenu.tscn")
 const TierSelectScene = preload("res://scenes/session/TierSelect.tscn")
 const SessionSummaryScene = preload("res://scenes/session/SessionSummary.tscn")
+const LearnLessonScene = preload("res://scenes/exercises/LearnLesson.tscn")
 
 @onready var safe_area: Control = $SafeArea
 @onready var screen_host: Control = $SafeArea/ScreenHost
 @onready var owl: Control = $SafeArea/Owl
 @onready var celebration: Control = $SafeArea/Celebration
+@onready var owl_bubble: Control = $SafeArea/OwlBubble
+@onready var hint_button: Button = $SafeArea/HintButton
 
-enum Screen { MENU, PICKER, EXERCISE, SUMMARY }
+enum Screen { MENU, PICKER, EXERCISE, SUMMARY, LEARN }
 
 ## Minimum inset on phones/tablets (viewport units). Rounded screen corners
 ## aren't always reported in the OS safe area, so we always keep at least
@@ -23,6 +26,7 @@ var _screen_kind: Screen = Screen.MENU
 
 
 func _ready() -> void:
+	hint_button.pressed.connect(show_hint)
 	show_main_menu()
 	# The hold-to-exit button is for the desktop kiosk; on phones/tablets
 	# Android's own app switching (and back at the main menu) covers it.
@@ -72,11 +76,13 @@ func go_back() -> void:
 			get_tree().quit()
 		Screen.PICKER:
 			_current_screen._on_back_pressed()
-		Screen.EXERCISE, Screen.SUMMARY:
+		Screen.EXERCISE, Screen.SUMMARY, Screen.LEARN:
 			show_tier_select()
 
 
 func _clear_screen() -> void:
+	owl_bubble.hide_bubble()
+	hint_button.visible = false
 	if _current_screen:
 		_current_screen.queue_free()
 		_current_screen = null
@@ -102,6 +108,9 @@ func show_tier_select() -> void:
 
 
 func _on_exercise_chosen(exercise_def, tier) -> void:
+	if exercise_def.activity == "LEARN":
+		show_lesson(tier)
+		return
 	ExerciseDirector.start_session(exercise_def, tier)
 	_show_exercise_screen(exercise_def)
 
@@ -116,9 +125,37 @@ func _show_exercise_screen(exercise_def) -> void:
 	_current_screen = exercise_screen
 	_screen_kind = Screen.EXERCISE
 	exercise_screen.setup(ExerciseDirector.current_tier, ExerciseDirector.current_question)
+	hint_button.visible = true
+
+
+## The owl explains a clock topic step by step, in its speech bubble.
+func show_lesson(tier) -> void:
+	_clear_screen()
+	var lesson = LearnLessonScene.instantiate()
+	lesson.exit_requested.connect(show_tier_select)
+	lesson.owl_says.connect(func(text: String, spoken: String):
+		owl_bubble.say(text, spoken, false)
+		owl.explain())
+	lesson.owl_cheers.connect(func():
+		owl.cheer()
+		celebration.burst(lesson.clock.get_global_rect().get_center()))
+	screen_host.add_child(lesson)
+	_current_screen = lesson
+	_screen_kind = Screen.LEARN
+	lesson.setup(tier)
+
+
+## ❓ beside the owl: the next step-by-step hint for this question.
+func show_hint() -> void:
+	if _screen_kind != Screen.EXERCISE or _current_screen.is_answered:
+		return
+	owl_bubble.say(_current_screen.next_hint())
+	owl.explain()
 
 
 func _on_answered(correct: bool) -> void:
+	owl_bubble.hide_bubble()
+	hint_button.visible = false
 	ExerciseDirector.record_answer(correct)
 	if correct:
 		owl.cheer()
@@ -133,6 +170,7 @@ func _on_next_requested() -> void:
 	var has_more: bool = ExerciseDirector.advance()
 	if has_more:
 		_current_screen.setup(ExerciseDirector.current_tier, ExerciseDirector.current_question)
+		hint_button.visible = true
 	else:
 		_show_session_summary()
 

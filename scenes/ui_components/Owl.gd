@@ -4,7 +4,8 @@ extends Control
 ## (origin at bottom-centre, y up is negative) and scaled to this
 ## control's size. Always alive: a gentle bob and natural blinking.
 ## Reactions: cheer() (hop + wings up + happy eyes), encourage() (head
-## tilt + nod, soft eyes), celebrate() (several hops for the summary).
+## tilt + nod, soft eyes), explain() (tilt + small bob, for hints and
+## lessons), celebrate() (several hops for the summary).
 
 enum Mood { IDLE, HAPPY, ENCOURAGE }
 
@@ -58,6 +59,15 @@ func encourage() -> void:
 	_react(Mood.ENCOURAGE, 1.8)
 	_tween.tween_property(self, "_tilt", 0.2, 0.25).set_trans(Tween.TRANS_SINE)
 	_tween.tween_property(self, "_tilt", -0.12, 0.35).set_trans(Tween.TRANS_SINE)
+	_tween.tween_property(self, "_tilt", 0.0, 0.3).set_trans(Tween.TRANS_SINE)
+
+
+## A thoughtful head tilt while the owl explains something.
+func explain() -> void:
+	_react(Mood.IDLE, 1.2)
+	_tween.tween_property(self, "_tilt", -0.12, 0.2).set_trans(Tween.TRANS_SINE)
+	_tween.tween_property(self, "_hop", -8.0, 0.12).set_trans(Tween.TRANS_SINE)
+	_tween.tween_property(self, "_hop", 0.0, 0.12).set_trans(Tween.TRANS_SINE)
 	_tween.tween_property(self, "_tilt", 0.0, 0.3).set_trans(Tween.TRANS_SINE)
 
 

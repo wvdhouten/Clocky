@@ -43,6 +43,21 @@ func _init() -> void:
 	var stats: Dictionary = director.get_session_stats()
 	_check_eq_int("attempts recorded", stats["attempts"], director.SESSION_LENGTH)
 
+	# Set the clock (choose) keeps its own progress, and its stars count too.
+	var store = root.get_node("ProgressStore")
+	var stars_before: int = store.get_overall_stars()
+	var ex_set_mc = load("res://resources/exercises/ex_set_mc.tres")
+	var set_before: int = int(store.get_tier_stats("SET_MC", 3)["correct"])
+	director.start_session(ex_set_mc, tier3)
+	director.record_answer(true)
+	_check_eq_int("SET_MC progress recorded under its own key", int(store.get_tier_stats("SET_MC", 3)["correct"]), set_before + 1)
+	_check_eq_int("SET_MC answers add stars", store.get_overall_stars(), stars_before + 1)
+
+	# Every activity groups its modes, and each mode's scene loads.
+	for ex_path in ["ex_learn", "ex_read_mc", "ex_read_free", "ex_set_mc", "ex_set_clock"]:
+		var ex = load("res://resources/exercises/%s.tres" % ex_path)
+		_check_true("%s has an activity and a scene" % ex_path, not ex.activity.is_empty() and ex.scene != null)
+
 	if failures == 0:
 		print("ALL PASS")
 	else:

@@ -12,6 +12,7 @@ func _ready() -> void:
 	super._ready()
 	check_button.text = tr("CHECK")
 	check_button.pressed.connect(_on_check_pressed)
+	_attach_button_speaker(check_button)
 
 
 func _on_setup() -> void:
@@ -28,6 +29,10 @@ func _on_setup() -> void:
 ## Spoken as "Set the clock to half past three", not "... 3:30".
 func _prompt_speech() -> String:
 	return tr("SET_CLOCK_PROMPT").format({"time": LocaleManager.phrase_for_time(question.target)})
+
+
+func _hints_for_question() -> Array:
+	return HintBuilder.set_hints(question.target)
 
 
 func _refresh_prompt() -> void:

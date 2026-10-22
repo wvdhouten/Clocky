@@ -52,6 +52,19 @@ offset_bottom = 130.0
 theme_override_constants/separation = 18
 alignment = 1
 
+[node name="ModeRow" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 168.0
+offset_right = 300.0
+offset_bottom = 232.0
+theme_override_constants/separation = 24
+alignment = 1
+
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = 2

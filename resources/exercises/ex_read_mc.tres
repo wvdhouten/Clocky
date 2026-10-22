@@ -16,3 +16,6 @@ name_key = "EX_READ_MC"
 scene = ExtResource("2")
 supports_tiers = Array[Resource]([ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7")])
 uses_speech = false
+activity = "READ"
+mode_name_key = "MODE_CHOOSE"
+mode_icon = "❓"

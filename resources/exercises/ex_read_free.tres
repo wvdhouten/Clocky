@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="ExerciseDefinition" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/ExerciseDefinition.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/exercises/ReadClockFreeForm.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/exercises/ReadClockWheel.tscn" id="2"]
 [ext_resource type="Resource" path="res://resources/tiers/tier_1_ohclock.tres" id="3"]
 [ext_resource type="Resource" path="res://resources/tiers/tier_2_half.tres" id="4"]
 [ext_resource type="Resource" path="res://resources/tiers/tier_3_quarter.tres" id="5"]
@@ -11,8 +11,11 @@
 [resource]
 script = ExtResource("1")
 exercise_type = 1
-display_name = "Read the Clock (Type the Time)"
+display_name = "Read the Clock (Scroll Wheels)"
 name_key = "EX_READ_FREE"
 scene = ExtResource("2")
 supports_tiers = Array[Resource]([ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7")])
 uses_speech = false
+activity = "READ"
+mode_name_key = "MODE_SCROLL"
+mode_icon = "🎚️"

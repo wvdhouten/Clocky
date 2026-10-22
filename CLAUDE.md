@@ -6,13 +6,18 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
 
 - **Speech: tap-to-hear text-to-speech only, never speech-to-text.**
   - Speech was first removed as "not the right interface for kids", then text-to-speech came back in a narrower form: it helps non-readers understand labels. Getting children to speak answers was judged not worth it.
-  - Nothing is spoken automatically. Small 🗣️ `SpeakButton`s sit beside the screen instructions and the feedback, and in each picker card's top-left corner, where they read the name without selecting the card. The main menu, summary and buttons like Next/Back have none (the user chose prompts and card names only).
+  - Nothing is spoken automatically, and that includes the Learn lessons and ❓ hints (the user confirmed this). Every text element (prompts, feedback, titles, cards, multiple-choice options, Exit/Back/Next/Check/Start/Continue, the owl's bubble) carries the same round 🗣️ badge on its **top-right corner**, added with `SpeakButton.attach(target, source)`. The badge is a child of the element, named `Speaker`. On picker cards it reads the name without selecting the card; trophies sit top-left.
+  - Multiple-choice options are read the natural way ("quarter past three"). That's fine because every option is spoken alike.
   - Uses Godot's built-in TTS via the `Speech` autoload (`DisplayServer.tts_*`, with `audio/general/text_to_speech=true`). That means Windows OneCore voices on PC (English and Dutch are installed here, Romanian isn't) and Google TTS on Android. No plugins or helper programs.
   - If the current language has no voice, the 🗣️ buttons hide. The top-bar mute silences speech too.
   - Speech text goes through `Speech.clean()`, which drops emoji and reads "/" as ", ". Set the Clock and wrong typed answers speak the time naturally via `PhraseBuilder` ("half past three"), while the screen shows digits.
   - The "read the clock" prompts must never speak the target time, because that would give away the answer.
-- **Exercises:** read the clock (multiple choice), read the clock (type the time; 12h and 24h both accepted), and set the clock (drag the hands). Each has 5 tiers: o'clock → half → quarter → 5-minute → exact minute.
-- **Every wrong answer teaches.** Multiple choice reveals the right answer in green. Set the Clock animates the hands to the target. Typed answers show "Almost! It was 3:15." The feedback is never punishing.
+- **Activities** (picker step 1): **Learn**, **Read the Clock** and **Set the Clock**. Each has 5 tiers: o'clock → half → quarter → 5-minute → exact minute.
+  - Read and Set each have two modes, picked with a toggle on the difficulty step and remembered as setting `mode_<activity>`. Read: ❓ choose (`READ_MC`) or 🎚️ scroll wheels (`READ_FREE`, kept as the key so old progress counts). Set: ❓ choose one of 4 clocks (`SET_MC`) or 👆 drag the hands (`SET_CLOCK`). Exercises are grouped by `ExerciseDefinition.activity`.
+  - Scroll mode (`ReadClockWheel` + `TimeWheel`) uses phone-alarm style wheels: hours 1–12, and the minute wheel offers **only the tier's allowed minutes** (all 00–59 on the exact-minute tier). Lists of 5+ values wrap; shorter ones stop at their ends. There's no keyboard.
+  - **Learn** (`LearnLesson`, content in `scripts/data/LessonLibrary.gd`): one lesson per tier, in which the owl explains the hands step by step in its speech bubble while the clock animates and highlights (`AnalogClock.set_highlight()`). The lesson ends with a "your turn" step. There's no scoring; finishing sets `learn_seen_<n>` (✅ on the card).
+  - **❓ hints** (`Main/SafeArea/HintButton`, beside the owl, only while a question is unanswered): each tap shows the next step from `HintBuilder` in the owl's bubble (`OwlBubble`) and makes that hand glow. Read hints go short hand first, then long hand; Set hints go long hand first. Hints deliberately walk the child to the answer, and they don't affect scoring.
+- **Every wrong answer teaches.** Multiple choice reveals the right answer in green. Set the Clock animates the hands to the target. Scroll wheels show "Almost! It was 3:15." and roll to the answer. The feedback is never punishing.
 - **Clock numbers setting:** none, hours, or hours + minutes. Numbers sit in rings *outside* the rim, so the hands never cover them. Hour hand and hour numbers are navy; minute hand and minute numbers are blue.
 - **Owl mascot**, confetti, and sound effects synthesized in code, with a mute toggle.
 - **Kiosk:** starts fullscreen with stretch aspect `expand`. Exit by holding the top-left ⏻ for 3 seconds; Alt+F4 also works.
@@ -20,8 +25,6 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
 - **Android** (preset "Android": arm64 only, `com.wvdhouten.clocky`, no permissions, debug-signed):
   - Back (`NOTIFICATION_WM_GO_BACK_REQUEST`, with `quit_on_go_back=false`) is handled by `Main.go_back()`. Order: open dialog → exercise/summary → picker → menu → quit.
   - `ParentExitButton` and `KioskWindow` are disabled when `OS.has_feature("mobile")`.
-  - Type the Time uses the number keypad, with digits auto-formatted to "3:15" by `format_digits()`. It lifts itself above the on-screen keyboard (`keyboard_shift()`).
-  - Only query `DisplayServer.virtual_keyboard_get_height()` when `has_feature(FEATURE_VIRTUAL_KEYBOARD)`; otherwise Windows logs a warning every frame.
   - Android requires `import_etc2_astc=true`.
   - The slim-engine idea (a custom Godot build to shrink the 110 MB exe) was dropped as not worth the maintenance.
 - **Total stars** = one per correct answer ever (the same stars the summary pops in), computed by `ProgressSchema.get_overall_stars()` from per-tier `correct` counts; there's no stored counter. 🏆 is reserved for mastered levels.
@@ -44,10 +47,10 @@ Godot 4.7 (GDScript) app that teaches children aged 4.5+ to read analog clocks, 
   - `Main.tscn`: the persistent shell. The sky background is full-screen. Everything else sits inside `SafeArea`: `ScreenHost`, where screens are swapped, plus the overlays that appear on every screen (owl, top bar with mute / 🔢 / flag, parent-exit button, confetti layer).
   - `MainMenu`
   - `ClockDebug`: dev-only and excluded from builds.
-- `scenes/clock/AnalogClock`: the reusable clock widget, in STATIC or INTERACTIVE mode. It communicates only through `set_time()`, `get_current_time()`, `animate_to()` and its signals.
-- `scenes/exercises/`: all exercises extend `ExerciseBase.gd` by path. Each scene must contain the nodes `PromptLabel`, `FeedbackLabel`, `NextButton` and `ExitButton`.
+- `scenes/clock/AnalogClock`: the reusable clock widget, in STATIC or INTERACTIVE mode. It communicates only through `set_time()`, `get_current_time()`, `animate_to()`, `set_highlight()` and its signals.
+- `scenes/exercises/`: all exercises extend `ExerciseBase.gd` by path. Each scene must contain the nodes `PromptLabel`, `FeedbackLabel`, `NextButton` and `ExitButton`. Subclasses override `_hints_for_question()` for ❓. `LearnLesson` is the exception: it doesn't extend `ExerciseBase` and asks Main for the bubble through `owl_says`.
 - `scenes/session/`: `TierSelect` (picture cards with mastery badges) and `SessionSummary`.
-- `scenes/ui_components/`: owl, sky, celebration, switchers, the parent-exit button and `SpeakButton`.
+- `scenes/ui_components/`: owl and its speech bubble (`OwlBubble`), sky, celebration, the top-bar switchers (`TopBarSwitcher` base), `GlyphButton`, the parent-exit button, `SpeakButton` and the scroll `TimeWheel`.
 - `scripts/`:
   - `clock_logic` (`ClockMath`, `TimeValue`)
   - `data` (tier/exercise Resources, `QuestionGenerator`)
@@ -68,10 +71,11 @@ The Godot executable (winget install, not on PATH):
   - `scripts/clock_logic/ClockMathTest.gd`
   - `scripts/data/ExerciseFlowTest.gd`
   - `scripts/data/SceneLoadTest.gd`: checks scene loading, that the hands are drawable, and the layout at 1280×800, 1422×800 (16:9), 1280×960 (4:3 tablet) and 1778×800 (20:9 phone). The layout check includes overlap against the owl, the top bar and the exit button, plus contrast.
-    - It also covers back navigation, keypad input, the keyboard lift, the safe area, speech text cleanup, and that card 🗣️ buttons stay clear of the clocks.
+    - It also covers back navigation, the scroll wheels, Set-the-Clock choose, ❓ hints, lessons, top-bar sizing and dialog padding, the safe area, speech text cleanup, and that every 🗣️ badge stays on-screen and overlaps only its own element.
     - `Speech.force_available = true` makes the 🗣️ buttons visible in headless runs.
   - `scripts/data/ProgressPersistenceTest.gd`
   - `scripts/speech/PhraseBuilderTest.gd`
+  - `scripts/speech/HintBuilderTest.gd`
 - **Screenshots** (needs a window, so no `--headless`; it saves only Godot's own viewport, never the desktop):
   `godot --path . --script res://scripts/tools/Screenshots.gd -- <out_dir>`
   It uses a fixed RNG seed and writes zoom crops (`*z_*.png`) for checking edge quality. Look at them with the Read tool.
@@ -96,6 +100,8 @@ The Godot executable (winget install, not on PATH):
 - **Polygons must not self-intersect,** or Godot silently draws nothing (this once made the clock hands invisible). `SceneLoadTest` checks that they triangulate.
 - **Windows has no flag emoji** (🇬🇧 renders as "GB"). Flags are drawn by `scripts/ui/FlagTextures.gd`.
 - **Fonts must cover Romanian ă ș ț.** Baloo 2 does; Fredoka doesn't. Check glyph coverage before switching fonts.
+- **Emoji as button `text` grows the button.** The emoji font's deep descent made 🔊/🔢 55 px tall and drew the glyph high. Icon-only buttons use `GlyphButton` (it draws the glyph centred, at a fixed size); the top bar is 56×56 squares.
+- **A scene's `custom_minimum_size` (AnalogClock: 300) sticks until the node is in the tree.** For a small clock outside a container, set the minimum, add it to the tree, *then* `reset_size()`.
 - **Text-format `.tscn`/`.tres` files are edited by hand.** Keep the blank lines between `[node]` sections, and put `layout_mode`/anchors on Control nodes.
 - **Button children need `mouse_filter = IGNORE`** so the whole card stays clickable (e.g. the mini clocks on the picker cards).
 - **Phone checks over adb** (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`, the user's Xiaomi 17 Ultra):

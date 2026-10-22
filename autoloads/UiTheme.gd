@@ -87,13 +87,26 @@ static func build() -> Theme:
 	# Small white round buttons for the always-visible top bar.
 	t.set_type_variation("TopBarButton", "Button")
 	var top := card_box(Color.WHITE, 18)
-	top.set_content_margin_all(6)
+	top.set_content_margin_all(0)
 	var top_hover := card_box(Color("f0f8ff"), 18)
-	top_hover.set_content_margin_all(6)
+	top_hover.set_content_margin_all(0)
 	t.set_stylebox("normal", "TopBarButton", top)
 	t.set_stylebox("hover", "TopBarButton", top_hover)
 	t.set_stylebox("pressed", "TopBarButton", top_hover)
 	t.set_stylebox("hover_pressed", "TopBarButton", top_hover)
+
+	# Round 🗣️ badge pinned to the top-right corner of labels and buttons.
+	t.set_type_variation("SpeakBadge", "Button")
+	var badge := card_box(Color.WHITE, 20)
+	badge.shadow_size = 6
+	badge.shadow_offset = Vector2(0, 3)
+	badge.set_content_margin_all(0)
+	var badge_hover := badge.duplicate()
+	badge_hover.bg_color = Color("f0f8ff")
+	t.set_stylebox("normal", "SpeakBadge", badge)
+	t.set_stylebox("hover", "SpeakBadge", badge_hover)
+	t.set_stylebox("pressed", "SpeakBadge", badge_hover)
+	t.set_stylebox("hover_pressed", "SpeakBadge", badge_hover)
 
 	# White rounded banner for prompts and titles, so they stay readable
 	# over the sky and drifting clouds.

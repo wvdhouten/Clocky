@@ -63,6 +63,9 @@ var _dragging_hand: HandId = HandId.NONE
 var _drag_last_raw_angle: float = 0.0
 var _drag_accumulated_degrees: float = 0.0
 var _drag_start_hour: int = 0
+## Hand currently glowing (lessons and hints point the child at it).
+var _highlight: HandId = HandId.NONE
+var _pulse_t: float = 0.0
 
 
 func _ready() -> void:
@@ -73,6 +76,21 @@ func _ready() -> void:
 		ProgressStore.setting_changed.connect(_on_setting_changed)
 	_reposition_hands()
 	_update_hand_rotations()
+	set_process(false)
+	queue_redraw()
+
+
+## Makes one hand glow softly (HandId.NONE to stop), so the owl can point
+## the child at "the short hand" or "the long hand".
+func set_highlight(hand: HandId) -> void:
+	_highlight = hand
+	_pulse_t = 0.0
+	set_process(hand != HandId.NONE)
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	_pulse_t += delta
 	queue_redraw()
 
 
@@ -225,6 +243,9 @@ func _draw() -> void:
 		else:
 			draw_line(center + dir * r * 0.81, outer, MINOR_TICK_COLOR, max(1.0, r * 0.009), true)
 
+	if _highlight != HandId.NONE:
+		_draw_highlight(center, r)
+
 	if number_mode == NumberMode.NONE:
 		return
 
@@ -245,6 +266,23 @@ func _draw() -> void:
 		for i in range(12):
 			var label: String = "%02d" % (i * 5)
 			_draw_centered_text(font, label, center + _clock_dir(i * 30.0) * outer_r * 0.94, minute_size, MINUTE_HAND_COLOR)
+
+
+## A pulsing halo along the highlighted hand, drawn under the hand nodes.
+func _draw_highlight(center: Vector2, r: float) -> void:
+	var s: float = r / DESIGN_RADIUS
+	var is_hour: bool = _highlight == HandId.HOUR
+	var angle: float = ClockMath.hour_angle_deg(_current_time.hour, _current_time.minute) if is_hour 		else ClockMath.minute_angle_deg(_current_time.minute)
+	var length: float = (82.0 if is_hour else 126.0) * s
+	var color: Color = HOUR_HAND_COLOR if is_hour else MINUTE_HAND_COLOR
+	var pulse: float = 0.5 + 0.5 * sin(_pulse_t * 5.0)
+	var tip: Vector2 = center + _clock_dir(angle) * length
+	var width: float = (26.0 + 8.0 * pulse) * s
+	var halo := Color(CAP_COLOR, 0.55 + 0.3 * pulse)
+	draw_line(center, tip, halo, width, true)
+	draw_circle(tip, width / 2.0, halo, true, -1.0, true)
+	draw_circle(center, width / 2.0, halo, true, -1.0, true)
+	draw_circle(tip, width * 0.2, Color(color, 0.5), true, -1.0, true)
 
 
 func _draw_centered_text(font: Font, text: String, pos: Vector2, font_size: int, color: Color) -> void:
