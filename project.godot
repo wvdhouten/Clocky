@@ -10,6 +10,8 @@ config_version=5
 
 [application]
 
+boot_splash/bg_color=Color(0.47451, 0.776471, 0.964706, 1)
+boot_splash/show_image=false
 config/name="Clocky"
 run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
